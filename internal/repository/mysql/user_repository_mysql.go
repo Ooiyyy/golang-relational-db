@@ -4,8 +4,9 @@ package mysql
 import (
 	"database/sql"
 	"fmt"
-	"golearn-structured/internal/model"
-	"golearn-structured/internal/repository"
+	"golang-sekolah/internal/dto"
+	"golang-sekolah/internal/model"
+	"golang-sekolah/internal/repository"
 )
 
 // userRepositoryImpl menyimpan koneksi database agar bisa digunakan oleh fungsi-fungsi (method) di dalamnya.
@@ -25,7 +26,7 @@ func (r *userRepositoryImpl) GetByUsername(username string) (*model.Users, error
 	// QueryRow digunakan untuk mengambil tepat SATU baris data (karena hasil username pasti satu).
 	// Scan() menyalin data dari kolom hasil database ke alamat memori variabel 'user' dan 'password'.
 	// QueryRow cocok untuk single-record query; Scan butuh pointer sebagai target.
-	err := r.DB.QueryRow("SELECT id, username, password FROM users WHERE username = ?", username).Scan(&user.ID, &user.Username, &user.Password)
+	err := r.DB.QueryRow("SELECT id, username, password, role FROM users WHERE username = ?", username).Scan(&user.ID, &user.Username, &user.Password, &user.Role)
 
 	// Inilah cara membuat Pointer menjadi 'nil'!
 	// Jika ada error (termasuk jika data tidak ditemukan), kita cegah kode lanjut ke bawah.
@@ -54,10 +55,10 @@ func (r *userRepositoryImpl) IsUserExist(username string) bool {
 }
 
 // Insert menambahkan pendaftaran profil dan password baru (telah di-hash) ke dalam tabel.
-func (r *userRepositoryImpl) Insert(username, password string) error {
+func (r *userRepositoryImpl) Insert(req dto.RegisterReq) error {
 	// db.Exec biasa digunakan untuk query yang MENGUBAH data dan tidak mengembalikan baris (INSERT, UPDATE, DELETE).
 	// Tanda "?" adalah parameter query (preparedStatement) yang aman dari peretasan SQL Injection.
-	_, err := r.DB.Exec("INSERT INTO users (username, password) VALUES (?, ?)", username, password)
+	_, err := r.DB.Exec("INSERT INTO users (username, password, email, role) VALUES (?, ?, ?, ?)", req.Username, req.Password, req.Email, req.Role)
 	return err
 }
 
@@ -72,11 +73,12 @@ func (r *userRepositoryImpl) UpdatePassword(username, password string) error {
 }
 
 // GetProfile mengambil data username dan dibungkus di kembalian saja.
-func (r *userRepositoryImpl) GetProfile(id int, username string) (int, string, error) {
+func (r *userRepositoryImpl) GetProfile(id int, username string) (int, string, string, error) {
 	var userID int
 	var user string
+	var role string
 
-	err := r.DB.QueryRow("SELECT id, username FROM users WHERE id = ?", id).Scan(&userID, &user)
+	err := r.DB.QueryRow("SELECT id, username, role FROM users WHERE id = ?", id).Scan(&userID, &user, &role)
 
-	return userID, user, err
+	return userID, user, role, err
 }

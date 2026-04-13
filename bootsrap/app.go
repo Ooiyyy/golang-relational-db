@@ -1,11 +1,11 @@
 package bootstrap
 
 import (
-	"golearn-structured/config"
-	"golearn-structured/internal/handler"
-	"golearn-structured/internal/repository/mysql"
-	"golearn-structured/internal/routes"
-	"golearn-structured/internal/service"
+	"golang-sekolah/config"
+	"golang-sekolah/internal/handler"
+	"golang-sekolah/internal/repository/mysql"
+	"golang-sekolah/internal/routes"
+	"golang-sekolah/internal/service"
 )
 
 func Run() {
@@ -20,16 +20,20 @@ func Run() {
 	// repository -> service -> handler.
 	userRepo := mysql.NewUserRepository(db)
 	todoRepo := mysql.NewTodoRepository(db)
+	subjectRepo := mysql.NewSubjectRepo(db)
 
 	userService := service.NewUserService(userRepo)
 	todoService := service.NewTodoService(todoRepo)
+	subjectService := service.NewSubjectService(subjectRepo)
 
 	authHandler := handler.NewAuthHandler(userService, jwtSecret)
 	todoHandler := handler.NewTodoHandlers(todoService)
+	subjectHandler := handler.NewSubjectHandler(subjectService)
 
 	r := routes.SetupRouter(
 		authHandler,
 		todoHandler,
+		subjectHandler,
 		jwtSecret,
 	)
 

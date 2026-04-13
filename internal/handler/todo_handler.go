@@ -2,7 +2,7 @@ package handler
 
 import (
 	"fmt"
-	"golearn-structured/internal/service"
+	"golang-sekolah/internal/service"
 	"net/http"
 	"os"
 	"path/filepath"

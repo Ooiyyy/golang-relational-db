@@ -1,6 +1,6 @@
 package repository
 
-import "golearn-structured/internal/model"
+import "golang-sekolah/internal/model"
 
 type TodoRepository interface {
 	Create(todo model.Todo) error

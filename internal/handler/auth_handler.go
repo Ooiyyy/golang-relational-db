@@ -3,8 +3,9 @@
 package handler
 
 import (
-	"golearn-structured/internal/dto"
-	"golearn-structured/internal/service"
+	"golang-sekolah/internal/dto"
+	"golang-sekolah/internal/service"
+	"golang-sekolah/internal/utils"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -29,8 +30,9 @@ func (h *AuthHandler) Login(c *gin.Context) {
 
 	// Bind JSON body ke DTO; pointer (&req) dipakai agar Gin mengisi struct langsung.
 	if err := c.ShouldBindJSON(&req); err != nil {
+		validationErr := utils.FormatValidationError(err)
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
+			"error": validationErr,
 		})
 		return
 	}
@@ -53,10 +55,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 
 // Register untuk mendaftarkan akun.
 func (h *AuthHandler) Register(c *gin.Context) {
-	var req struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
-	}
+	var req dto.RegisterReq
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -66,7 +65,12 @@ func (h *AuthHandler) Register(c *gin.Context) {
 	}
 
 	// Service mengeksekusi validasi bisnis + simpan data via repository.
-	err := h.service.Register(req.Username, req.Password)
+	err := h.service.Register(dto.RegisterReq{
+		Username: req.Username,
+		Email:    req.Email,
+		Password: req.Password,
+		Role:     req.Role,
+	})
 	if err != nil {
 		// http.Error(w, err.Error(), 400)
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -86,9 +90,10 @@ func (h *AuthHandler) Profile(c *gin.Context) {
 	// Data user ini disisipkan middleware JWT setelah token valid.
 	id := c.GetInt("id")
 	username := c.GetString("username")
+	role := c.GetString("role")
 
 	// Alur tetap konsisten: handler -> service -> repository.
-	id, user, err := h.service.GetProfile(id, username)
+	id, user, role, err := h.service.GetProfile(id, username)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"error": err.Error(),
@@ -101,6 +106,7 @@ func (h *AuthHandler) Profile(c *gin.Context) {
 		"data": gin.H{
 			"id":       id,
 			"username": user,
+			"role":     role,
 		},
 	})
 }

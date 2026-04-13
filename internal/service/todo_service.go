@@ -2,8 +2,8 @@ package service
 
 import (
 	"fmt"
-	"golearn-structured/internal/model"
-	"golearn-structured/internal/repository"
+	"golang-sekolah/internal/model"
+	"golang-sekolah/internal/repository"
 	"os"
 	"strings"
 )

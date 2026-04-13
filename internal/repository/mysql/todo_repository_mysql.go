@@ -2,8 +2,8 @@ package mysql
 
 import (
 	"database/sql"
-	"golearn-structured/internal/model"
-	"golearn-structured/internal/repository"
+	"golang-sekolah/internal/model"
+	"golang-sekolah/internal/repository"
 )
 
 type todoRepositoryImpl struct {

@@ -5,7 +5,8 @@ package service
 
 import (
 	"fmt"
-	"golearn-structured/internal/repository"
+	"golang-sekolah/internal/dto"
+	"golang-sekolah/internal/repository"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -46,6 +47,7 @@ func (s *UserService) Login(username, password string, secret []byte) (string, e
 	claims := jwt.MapClaims{
 		"id":       user.ID,
 		"username": user.Username,
+		"role":     user.Role,
 		"exp":      time.Now().Add(time.Hour * 1).Unix(),
 	}
 
@@ -60,34 +62,38 @@ func (s *UserService) Login(username, password string, secret []byte) (string, e
 }
 
 // Register menangani logika pembuatan pengguna baru.
-func (s *UserService) Register(username, password string) error {
+func (s *UserService) Register(req dto.RegisterReq) error {
 	// Validasi awal agar data yang masuk tidak kosong.
-	if username == "" {
+	if req.Username == "" {
 		return fmt.Errorf("Username wajib diisi")
 	}
-	if password == "" {
+	if req.Password == "" {
 		return fmt.Errorf("Password wajib diisi")
+	}
+	if req.Role == "" {
+		return fmt.Errorf("Roles wajib diisi")
 	}
 
 	// Cek panjang password demi keamanan dasar (business rule logic)
-	if len(password) < 6 {
+	if len(req.Password) < 6 {
 		return fmt.Errorf("Password minimal 6 karakter")
 	}
 
 	// Cek apakah di database sebelumnya sudah ada orang pakai username ini
-	if s.repo.IsUserExist(username) {
+	if s.repo.IsUserExist(req.Username) {
 		return fmt.Errorf("Username sudah digunakan")
 	}
 
 	// Gunakan bcrypt untuk mengenkripsi password aslinya sebelum disimpan.
 	// Kita tidak pernah boleh menyimpan password dalam mode teks biasa di database!
-	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	hash, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return fmt.Errorf("gagal hash password")
 	}
+	req.Password = string(hash)
 
 	// Panggil repository untuk benar-benar memasukkan data tersebut ke tabel MySQL
-	return s.repo.Insert(username, string(hash))
+	return s.repo.Insert(req)
 }
 
 // UpdatePassword berisi aturan bisnis kalau kamu ingin mengubah password
@@ -107,11 +113,11 @@ func (s *UserService) UpdatePassword(username, password string) error {
 }
 
 // GetProfile menarik data ringkas tentang pengguna
-func (s *UserService) GetProfile(id int, username string) (int, string, error) {
+func (s *UserService) GetProfile(id int, username string) (int, string, string, error) {
 	// Kita hanya perlu menyedot profil dari tabel saat ini.
-	id, user, err := s.repo.GetProfile(id, username)
+	id, user, role, err := s.repo.GetProfile(id, username)
 	if err != nil {
-		return 0, "", fmt.Errorf("user tidak ditemukan")
+		return 0, "", "", fmt.Errorf("user tidak ditemukan")
 	}
-	return id, user, nil
+	return id, user, role, nil
 }

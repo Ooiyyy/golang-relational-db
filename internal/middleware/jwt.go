@@ -32,14 +32,15 @@ func JWT(jwtSecret string) gin.HandlerFunc {
 
 		// 3. Parse mendeteksi isi token, dan memastikan kata sandinya (secret) sama persis!
 		token, err := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
-			return jwtSecret, nil
+			// JWT di Golang mewajibkan secret key HMAC dalam bentuk []byte, bukan string murni.
+			return []byte(jwtSecret), nil
 		})
 
 		// 4. Jika tokennya palsu, sudah kadaluwarsa, atau error syntax, maka diblokir
 		if err != nil || !token.Valid {
-			// http.Error(w, "Token tidak valid", http.StatusUnauthorized)
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-				"error": "Token tidak valid",
+				"error":   "Token tidak valid",
+				"message": err.Error(),
 			})
 			return
 		}
@@ -71,6 +72,11 @@ func JWT(jwtSecret string) gin.HandlerFunc {
 		idFloat, ok := claims["id"].(float64)
 		if ok {
 			c.Set("id", int(idFloat))
+		}
+
+		role, ok := claims["role"].(string)
+		if ok {
+			c.Set("role", role)
 		}
 
 		// 7. Jalankan "next" yang berarti Handler inti (misal file handler.Profile) dipersilahkan berjalan dengan context lengkap.

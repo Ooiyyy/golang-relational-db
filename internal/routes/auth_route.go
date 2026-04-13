@@ -1,8 +1,8 @@
 package routes
 
 import (
-	"golearn-structured/internal/handler"
-	"golearn-structured/internal/middleware"
+	"golang-sekolah/internal/handler"
+	"golang-sekolah/internal/middleware"
 
 	"github.com/gin-gonic/gin"
 )
