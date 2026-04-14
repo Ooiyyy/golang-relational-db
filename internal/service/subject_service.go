@@ -5,6 +5,7 @@ import (
 	"golang-sekolah/internal/dto"
 	"golang-sekolah/internal/model"
 	"golang-sekolah/internal/repository"
+	"strings"
 )
 
 type SubjectService struct {
@@ -55,5 +56,13 @@ func (s *SubjectService) DeleteSubject(id int) error {
 	if err != nil {
 		return err
 	}
-	return s.repo.Delete(id)
+
+	err = s.repo.Delete(id)
+	if err != nil {
+		if strings.Contains(err.Error(), "foreign key constraint fails") {
+			return fmt.Errorf("Tidak dapat menghapus karena masih terdapat nilai yang tersimpan")
+		}
+		return err
+	}
+	return nil
 }
