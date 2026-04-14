@@ -10,32 +10,31 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type SubjectHandler struct {
-	service *service.SubjectService
+type ScoreHandler struct {
+	service *service.ScoreService
 }
 
-func NewSubjectHandler(s *service.SubjectService) *SubjectHandler {
-	return &SubjectHandler{service: s}
+func NewScoreHandler(s *service.ScoreService) *ScoreHandler {
+	return &ScoreHandler{service: s}
 }
 
-func (h *SubjectHandler) Create(c *gin.Context) {
-	var req dto.SubjectReq
+func (h *ScoreHandler) Create(c *gin.Context) {
+	var req dto.ScoreReq
 
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
 		validationErr := utils.FormatValidationError(err)
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": validationErr,
+			"error":   "Gagal menyimpan data",
+			"message": validationErr,
 		})
 		return
 	}
 
-	// Otomatis ambil ID User sang Guru dari token JWT yang sudah dipecah di Middleware sebelumnya!
-	req.TeacherID = c.GetInt("id")
-
-	err = h.service.CreateSubject(dto.SubjectReq{
-		Name:      req.Name,
-		TeacherID: req.TeacherID,
+	err = h.service.Create(dto.ScoreReq{
+		SubjectID: req.SubjectID,
+		StudentID: req.StudentID,
+		Score:     req.Score,
 	})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -45,20 +44,23 @@ func (h *SubjectHandler) Create(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusCreated, gin.H{
-		"message": "Subject berhasil dibuat",
+		"message": "Nilai berhasil disimpan",
 	})
 }
 
-func (h *SubjectHandler) GetAll(c *gin.Context) {
-	subjects, err := h.service.GetAllSubjects()
+func (h *ScoreHandler) GetAll(c *gin.Context) {
+	scores, err := h.service.GetAllScores()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error":   "Gagal menyimpan data",
+			"message": err.Error(),
+		})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"data": subjects})
+	c.JSON(http.StatusOK, gin.H{"data": scores})
 }
 
-func (h *SubjectHandler) GetByID(c *gin.Context) {
+func (h *ScoreHandler) GetByID(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
@@ -66,15 +68,15 @@ func (h *SubjectHandler) GetByID(c *gin.Context) {
 		return
 	}
 
-	subject, err := h.service.GetSubjectByID(id)
+	score, err := h.service.GetScoreByID(id)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"data": subject})
+	c.JSON(http.StatusOK, gin.H{"data": score})
 }
 
-func (h *SubjectHandler) Update(c *gin.Context) {
+func (h *ScoreHandler) Update(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
@@ -82,25 +84,29 @@ func (h *SubjectHandler) Update(c *gin.Context) {
 		return
 	}
 
-	var req dto.SubjectReq
-	if err := c.ShouldBindJSON(&req); err != nil {
+	var updateReq struct {
+		Score int `json:"score" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&updateReq); err != nil {
 		validationErr := utils.FormatValidationError(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": validationErr})
 		return
 	}
 
-	// Otomatis pakai ID guru yang sedang login
-	req.TeacherID = c.GetInt("id")
+	req := dto.ScoreReq{
+		Score: updateReq.Score,
+	}
 
-	err = h.service.UpdateSubject(id, req)
+	err = h.service.UpdateScore(id, req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"message": "Subject berhasil diupdate"})
+	c.JSON(http.StatusOK, gin.H{"message": "Nilai berhasil diupdate"})
 }
 
-func (h *SubjectHandler) Delete(c *gin.Context) {
+func (h *ScoreHandler) Delete(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
@@ -108,10 +114,10 @@ func (h *SubjectHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	err = h.service.DeleteSubject(id)
+	err = h.service.DeleteScore(id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"message": "Subject berhasil dihapus"})
+	c.JSON(http.StatusOK, gin.H{"message": "Nilai berhasil dihapus"})
 }

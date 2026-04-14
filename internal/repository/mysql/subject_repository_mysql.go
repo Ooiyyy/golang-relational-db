@@ -17,7 +17,7 @@ func NewSubjectRepo(db *sql.DB) *SubjectRepoImpl {
 }
 
 func (s *SubjectRepoImpl) Create(req dto.SubjectReq) error {
-	_, err := s.DB.Exec("INSERT INTO subjects (name, teacher_id) VALUES (?, ?)", req.Name, req.Teacher_id)
+	_, err := s.DB.Exec("INSERT INTO subjects (name, teacher_id) VALUES (?, ?)", req.Name, req.TeacherID)
 	return err
 }
 
@@ -31,7 +31,7 @@ func (s *SubjectRepoImpl) FindAll() ([]model.Subjects, error) {
 	var subjects []model.Subjects
 	for rows.Next() {
 		var sub model.Subjects
-		if err := rows.Scan(&sub.Id, &sub.Name, &sub.Teacher_id); err != nil {
+		if err := rows.Scan(&sub.Id, &sub.Name, &sub.TeacherID); err != nil {
 			return nil, err
 		}
 		subjects = append(subjects, sub)
@@ -41,7 +41,7 @@ func (s *SubjectRepoImpl) FindAll() ([]model.Subjects, error) {
 
 func (s *SubjectRepoImpl) FindByID(id int) (*model.Subjects, error) {
 	var sub model.Subjects
-	err := s.DB.QueryRow("SELECT id, name, teacher_id FROM subjects WHERE id = ?", id).Scan(&sub.Id, &sub.Name, &sub.Teacher_id)
+	err := s.DB.QueryRow("SELECT id, name, teacher_id FROM subjects WHERE id = ?", id).Scan(&sub.Id, &sub.Name, &sub.TeacherID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil // Data tidak ditemukan
@@ -52,7 +52,7 @@ func (s *SubjectRepoImpl) FindByID(id int) (*model.Subjects, error) {
 }
 
 func (s *SubjectRepoImpl) Update(id int, req dto.SubjectReq) error {
-	_, err := s.DB.Exec("UPDATE subjects SET name = ?, teacher_id = ? WHERE id = ?", req.Name, req.Teacher_id, id)
+	_, err := s.DB.Exec("UPDATE subjects SET name = ?, teacher_id = ? WHERE id = ?", req.Name, req.TeacherID, id)
 	return err
 }
 

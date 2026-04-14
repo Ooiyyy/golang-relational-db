@@ -18,8 +18,8 @@ func NewSubjectService(repo repository.SubjectRepository) *SubjectService {
 func (s *SubjectService) CreateSubject(req dto.SubjectReq) error {
 	// Pengecekan manual dihilangkan karena diatasi oleh DTO + tag binding
 	subjectReq := dto.SubjectReq{
-		Name:       req.Name,
-		Teacher_id: req.Teacher_id,
+		Name:      req.Name,
+		TeacherID: req.TeacherID,
 	}
 	return s.repo.Create(subjectReq)
 }
@@ -31,7 +31,7 @@ func (s *SubjectService) GetAllSubjects() ([]model.Subjects, error) {
 func (s *SubjectService) GetSubjectByID(id int) (*model.Subjects, error) {
 	subject, err := s.repo.FindByID(id)
 	if err != nil {
-		return nil,  err
+		return nil, err
 	}
 	if subject == nil {
 		return nil, fmt.Errorf("mata pelajaran tidak ditemukan")
@@ -45,7 +45,7 @@ func (s *SubjectService) UpdateSubject(id int, req dto.SubjectReq) error {
 	if err != nil {
 		return err
 	}
-	
+
 	return s.repo.Update(id, req)
 }
 
