@@ -2,8 +2,8 @@ package mysql
 
 import (
 	"database/sql"
-	"golang-sekolah/internal/dto"
-	"golang-sekolah/internal/model"
+	"golang-relational-db/internal/dto"
+	"golang-relational-db/internal/model"
 )
 
 type SubjectRepoImpl struct {

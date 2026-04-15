@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"golang-sekolah/internal/handler"
+	"golang-relational-db/internal/handler"
 
 	"github.com/gin-gonic/gin"
 )

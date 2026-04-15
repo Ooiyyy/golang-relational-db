@@ -5,8 +5,8 @@ package service
 
 import (
 	"fmt"
-	"golang-sekolah/internal/dto"
-	"golang-sekolah/internal/repository"
+	"golang-relational-db/internal/dto"
+	"golang-relational-db/internal/repository"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"

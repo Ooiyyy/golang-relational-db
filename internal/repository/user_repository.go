@@ -1,8 +1,8 @@
 package repository
 
 import (
-	"golang-sekolah/internal/dto"
-	"golang-sekolah/internal/model"
+	"golang-relational-db/internal/dto"
+	"golang-relational-db/internal/model"
 )
 
 type UserRepository interface {

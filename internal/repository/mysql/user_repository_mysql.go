@@ -4,9 +4,9 @@ package mysql
 import (
 	"database/sql"
 	"fmt"
-	"golang-sekolah/internal/dto"
-	"golang-sekolah/internal/model"
-	"golang-sekolah/internal/repository"
+	"golang-relational-db/internal/dto"
+	"golang-relational-db/internal/model"
+	"golang-relational-db/internal/repository"
 )
 
 // userRepositoryImpl menyimpan koneksi database agar bisa digunakan oleh fungsi-fungsi (method) di dalamnya.

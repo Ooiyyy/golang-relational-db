@@ -1,11 +1,11 @@
 package bootstrap
 
 import (
-	"golang-sekolah/config"
-	"golang-sekolah/internal/handler"
-	"golang-sekolah/internal/repository/mysql"
-	"golang-sekolah/internal/routes"
-	"golang-sekolah/internal/service"
+	"golang-relational-db/config"
+	"golang-relational-db/internal/handler"
+	"golang-relational-db/internal/repository/mysql"
+	"golang-relational-db/internal/routes"
+	"golang-relational-db/internal/service"
 )
 
 func Run() {

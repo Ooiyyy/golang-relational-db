@@ -2,9 +2,9 @@ package service
 
 import (
 	"fmt"
-	"golang-sekolah/internal/dto"
-	"golang-sekolah/internal/model"
-	"golang-sekolah/internal/repository"
+	"golang-relational-db/internal/dto"
+	"golang-relational-db/internal/model"
+	"golang-relational-db/internal/repository"
 	"strings"
 )
 

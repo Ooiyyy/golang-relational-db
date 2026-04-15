@@ -1,9 +1,9 @@
 package handler
 
 import (
-	"golang-sekolah/internal/dto"
-	"golang-sekolah/internal/service"
-	"golang-sekolah/internal/utils"
+	"golang-relational-db/internal/dto"
+	"golang-relational-db/internal/service"
+	"golang-relational-db/internal/utils"
 	"net/http"
 	"strconv"
 

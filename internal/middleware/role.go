@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"golang-sekolah/internal/utils"
+	"golang-relational-db/internal/utils"
 	"net/http"
 	"strings"
 
