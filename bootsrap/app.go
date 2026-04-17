@@ -21,19 +21,23 @@ func Run() {
 	userRepo := mysql.NewUserRepository(db)
 	subjectRepo := mysql.NewSubjectRepo(db)
 	scoreRepo := mysql.NewScoreRepo(db)
+	studentRepo := mysql.NewStudentRepo(db)
 
 	userService := service.NewUserService(userRepo)
 	subjectService := service.NewSubjectService(subjectRepo)
 	scoreService := service.NewScoreService(scoreRepo)
+	studentService := service.NewStudentService(studentRepo)
 
 	authHandler := handler.NewAuthHandler(userService, jwtSecret)
 	subjectHandler := handler.NewSubjectHandler(subjectService)
 	scoreHandler := handler.NewScoreHandler(scoreService)
+	studentHandler := handler.NewStudentHandler(studentService)
 
 	r := routes.SetupRouter(
 		authHandler,
 		subjectHandler,
 		scoreHandler,
+		studentHandler,
 		jwtSecret,
 	)
 
