@@ -62,7 +62,7 @@ func SuccessResponse(message string, data interface{}) Response {
 // error response
 func ErrorResponse(message string, errors interface{}) Response {
 	return Response{
-		Success: true,
+		Success: false,
 		Message: message,
 		Data:    nil,
 		Errors:  errors,

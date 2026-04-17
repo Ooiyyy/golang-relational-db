@@ -63,13 +63,15 @@ func (h *StudentHandler) GetByID(c *gin.Context) {
 }
 
 func (h *StudentHandler) GetAll(c *gin.Context) {
-	pageStr := c.DefaultQuery("page", "1")
-	limitStr := c.DefaultQuery("limit", "5")
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
 
-	page, _ := strconv.Atoi(pageStr)
-	limit, _ := strconv.Atoi(limitStr)
+	search := c.Query("search")
+	classID := c.Query("class_id")
+	sortBy := c.DefaultQuery("sort_by", "id")
+	order := c.DefaultQuery("order", "asc")
 
-	data, total, err := h.service.GetAllStudents(page, limit)
+	data, total, err := h.service.GetAllStudents(page, limit, search, classID, sortBy, order)
 	if err != nil {
 		c.JSON(500, utils.ErrorResponse("Terjadi kesalahan pada server", err.Error()))
 		return

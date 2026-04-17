@@ -2,6 +2,7 @@ package mysql
 
 import (
 	"database/sql"
+	"fmt"
 	"golang-relational-db/internal/model"
 )
 
@@ -53,8 +54,26 @@ func (r *StudentRepoImpl) FindByID(id int) (*model.Students, error) {
 	return &s, nil
 }
 
-func (r *StudentRepoImpl) FindAll(limit, offset int) ([]model.Students, error) {
-	rows, err := r.DB.Query("SELECT id, name, email, class_id FROM students LIMIT ? OFFSET ?", limit, offset)
+func (r *StudentRepoImpl) FindAll(limit, offset int, search string, classID int, sortBy, order string) ([]model.Students, error) {
+	query := "SELECT id, name, email, class_id FROM students WHERE 1=1"
+	args := []interface{}{}
+
+	if search != "" {
+		query += " AND (LOWER(name) LIKE LOWER(?) OR LOWER(email) LIKE LOWER(?))"
+		args = append(args, "%"+search+"%", "%"+search+"%")
+	}
+
+	if classID != 0 {
+		query += " AND class_id =?"
+		args = append(args, classID)
+	}
+
+	query += " ORDER BY " + sortBy + " " + order
+
+	query += " LIMIT ? OFFSET ?"
+	args = append(args, limit, offset)
+
+	rows, err := r.DB.Query(query, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -62,21 +81,31 @@ func (r *StudentRepoImpl) FindAll(limit, offset int) ([]model.Students, error) {
 
 	var students []model.Students
 
-	// loop semua hasil query
 	for rows.Next() {
-		var s model.Students
-		err := rows.Scan(&s.ID, &s.Name, &s.Email, &s.ClassID)
-		if err != nil {
-			return nil, err
-		}
-		students = append(students, s)
+		var student model.Students
+		rows.Scan(&student.ID, &student.Name, &student.Email, &student.ClassID)
+		students = append(students, student)
 	}
-
+	fmt.Println("QUERY:", query)
+	fmt.Println("ARGS:", args)
 	return students, nil
 }
-func (r *StudentRepoImpl) Count() (int, error) {
+func (r *StudentRepoImpl) Count(search string, classID int) (int, error) {
+	query := "SELECT COUNT(*) FROM students WHERE 1=1"
+	args := []interface{}{}
+
+	if search != "" {
+		query += " AND name LIKE ? OR email LIKE ?"
+		args = append(args, "%"+search+"%", "%"+search+"%")
+	}
+
+	if classID != 0 {
+		query += " AND class_id = ?"
+		args = append(args, classID)
+	}
+
 	var total int
-	err := r.DB.QueryRow("SELECT COUNT(*) FROM students").Scan(&total)
+	err := r.DB.QueryRow(query, args...).Scan(&total)
 	return total, err
 }
 

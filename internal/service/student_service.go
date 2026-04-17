@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"golang-relational-db/internal/model"
 	"golang-relational-db/internal/repository"
+	"strconv"
 )
 
 // service pegang business logic
@@ -35,20 +36,44 @@ func (s *StudentService) GetStudentByID(id int) (*model.Students, error) {
 	return student, nil
 }
 
-func (s *StudentService) GetAllStudents(page, limit int) ([]model.Students, int, error) {
+func (s *StudentService) GetAllStudents(page, limit int, search, classID, sortBy, order string) ([]model.Students, int, error) {
 	if page < 1 {
 		page = 1
 	}
-	if limit <= 0 || limit > 50 {
-		limit = 5
+	if limit <= 0 || limit > 100 {
+		limit = 10
 	}
+
+	var classIDInt int
+	var err error
+	if classID != "" {
+		classIDInt, err = strconv.Atoi(classID)
+		if err != nil {
+			return nil, 0, fmt.Errorf("class_id harus angka")
+		}
+		return nil, classIDInt, err
+	}
+
+	allowedSort := map[string]bool{
+		"id":    true,
+		"name":  true,
+		"email": true,
+	}
+	if !allowedSort[sortBy] {
+		sortBy = "id"
+	}
+
+	if order != "asc" && order != "desc" {
+		order = "asc"
+	}
+
 	offset := (page - 1) * limit
 
-	data, err := s.repo.FindAll(limit, offset)
+	data, err := s.repo.FindAll(limit, offset, search, classIDInt, sortBy, order)
 	if err != nil {
 		return nil, 0, err
 	}
-	total, err := s.repo.Count()
+	total, err := s.repo.Count(search, classIDInt)
 	if err != nil {
 		return nil, 0, err
 	}
