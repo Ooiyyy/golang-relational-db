@@ -2,7 +2,6 @@ package mysql
 
 import (
 	"database/sql"
-	"fmt"
 	"golang-relational-db/internal/model"
 )
 
@@ -83,13 +82,17 @@ func (r *StudentRepoImpl) FindAll(limit, offset int, search string, classID int,
 
 	for rows.Next() {
 		var student model.Students
-		rows.Scan(&student.ID, &student.Name, &student.Email, &student.ClassID)
+		err := rows.Scan(&student.ID, &student.Name, &student.Email, &student.ClassID)
+		if err != nil {
+			return nil, err
+		}
 		students = append(students, student)
 	}
-	fmt.Println("QUERY:", query)
-	fmt.Println("ARGS:", args)
+	// fmt.Println("QUERY:", query)
+	// fmt.Println("ARGS:", args)
 	return students, nil
 }
+
 func (r *StudentRepoImpl) Count(search string, classID int) (int, error) {
 	query := "SELECT COUNT(*) FROM students WHERE 1=1"
 	args := []interface{}{}
