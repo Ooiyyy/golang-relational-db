@@ -1,92 +1,108 @@
-# 🏫 Sistem Informasi Akademik API (Golang)
+📘 Golang Relational DB API
+Deskripsi
 
-Selamat datang di repositori Sistem Informasi Akademik (Studi Kasus Sekolah). Aplikasi ini merupakan RESTful API yang ditulis dalam bahasa **Go (Golang)** menggunakan arsitektur **Clean Architecture**.
+Project ini adalah REST API berbasis Golang (Gin) untuk mengelola data:
 
-Awalnya merupakan *clone* dari proyek Todo-List, proyek ini telah berkembang pesat menjadi sistem akademik yang mendukung Manajemen Pengguna (Guru & Siswa), Mata Pelajaran, dan Nilai Siswa beserta kontrol akses berbasis Role (RBAC).
+Students
+Classes
+Subjects
+Grades
 
-## 🌟 Fitur Utama
-- **Autentikasi & Otorisasi JWT**: Sistem pendaftaran dan login yang aman menggunakan sandi *bcrypt* dan token JWT.
-- **Role-Based Access Control (RBAC)**: Pembatasan hak akses *endpoint* menggunakan Middleware. 
-  - 👨‍🏫 **Guru**: Memiliki akses penuh (Create, Update, Delete) untuk Mengelola Mata Pelajaran dan Nilai-nilai Siswa.
-  - 👨‍🎓 **Siswa**: Hanya memiliki hak akses baca (Read-only) untuk melihat Mata Pelajaran dan Nilai.
-- **CRUD Mata Pelajaran (Subjects)**: Fitur otomatisasi kepemilikan. `Teacher_id` disisipkan otomatis dari sesi Guru yang sedang Login.
-- **CRUD Nilai Siswa (Scores)**: Manipulasi penilaian dengan pencarian efisien berbasis `student_id` & `subject_id` maupun Primary Key.
-- **Dukungan Utilitas Skalabel**: Modul standarisasi JSON Validation Error dan JSON HTTP Response.
+Fitur utama:
 
+CRUD dasar
+Pagination, search, dan sorting
+Relasi antar tabel (JOIN)
+Perhitungan rata-rata nilai siswa
+⚙️ Setup Awal (Prerequisites)
 
-## 🛠 Teknologi yang Digunakan
-- **Bahasa**: [Go (Golang)](https://go.dev/)
-- **Framework Web**: [Gin Gonic](https://gin-gonic.com/)
-- **Database**: MySQL dengan modul bawaan `database/sql`
-- **Keamanan**: `golang.org/x/crypto/bcrypt` & `github.com/golang-jwt/jwt/v5`
+Pastikan sudah menginstall:
 
----
+1. Golang
 
-## 💾 Skema Database
-Sistem ini menggunakan 3 tabel utama:
+Minimal versi 1.20+
 
-1. **`users`**
-   Menyimpan kredensial autentikasi dan peran. Kolom: `id`, `username`, `email`, `password`, `role` (enum: 'guru', 'siswa'), `created_at`.
-2. **`subjects`**
-   Menyimpan daftar mata pelajaran. Kolom: `id`, `name`, `teacher_id` (FK -> users.id).
-3. **`scores`**
-   Menyimpan nilai siswa per mapel. Kolom: `id`, `student_id` (FK -> users.id), `subject_id` (FK -> subjects.id), `score`, `created_at`.
+Cek:
 
----
+go version
 
-## 🚀 Cara Menjalankan Aplikasi
-1. Pastikan memiliki Go dan MySQL yang tersambung.
-2. Atur konfigurasi koneksi MySQL di dalam `config/database_config.go` (atau file `.env`).
-3. Jalankan server dengan perintah:
-   ```bash
-   go run ./cmd
-   ```
-4. Server akan otomatis menyala di **Port 8080** (http://localhost:8080).
+Jika belum:
+https://go.dev/dl/
 
----
+2. MySQL / MariaDB
 
-## 📚 Panduan Struktur Folder (Clean Architecture)
-Tujuan dari membagi-bagi file ke dalam beberapa folder adalah agar kode kita lebih rapi, gampang dites secara individual, dan lebih mudah dikembangkan jika aplikasinya semakin membesar.
+Pastikan database server aktif.
 
-*(Di bawah ini adalah penjelasan sederhana khusus untuk Pemula)*
+Cek:
 
-### 📁 `cmd/`
-- **Fungsi:** Titik utama di mana program ini mulai dijalankan `(go run ./cmd)`.
-- **Analogi:** Seperti "Gerbang Pintu Masuk" dari sebuah pabrik.
+mysql --version
+3. golang-migrate (CLI)
 
-### 📁 `config/`
-- **Fungsi:** Berisi konfigurasi lingkungan global aplikasi (seperti Database & JWT Secret).
-- **Analogi:** "Ruang Panel Mesin Listrik".
+Tool ini digunakan untuk migration database.
 
-### 📁 `internal/` (Rahasia & Tertutup)
-Ini adalah map tertutup khas Go. Inti dari semua rahasia logika bisnis aplikasi diletakkan di bawah payung folder ini dan tidak bisa diekspor oleh aplikasi luar.
+Install:
 
-#### 📂 `internal/handler/` (Controllers)
-- **Fungsi:** Tempat bertemunya HTTP Request JSON (dari Browser/Postman).
-- **Isi:** Membongkar JSON ke Struct (DTO) dan mencetak Response. Tidak boleh ada logika bisnis berat di sini.
-- **Analogi:** "Pelayan Restoran" yang mencatat dan mengirim pesanan.
+go install github.com/golang-migrate/migrate/v4/cmd/migrate@latest
 
-#### 📂 `internal/middleware/`
-- **Fungsi:** Pasukan pencegat spesifik di tengah rute.
-- **Isi:** Terdapat `jwt.go` (verifikasi Token otentikasi) dan `role.go` (pengecekan level otorisasi akses 'guru'/'siswa').
-- **Analogi:** "Satpam Resepsionis" yang mengecek KTP pengunjung.
+Tambahkan ke PATH (jika belum):
 
-#### 📂 `internal/service/` (Business Logic)
-- **Fungsi:** "Otak" utama aplikasi.
-- **Isi:** Disinilah diputuskan aturan seperti enkripsi password, mengecek duplikasi sebelum Insert DB, dsb.
-- **Analogi:** "Koki Spesialis Dapur" yang meracik masakan menggunakan resep rahasia restoran.
+export PATH=$PATH:$HOME/go/bin
 
-#### 📂 `internal/repository/` (Database Layer)
-- **Fungsi:** Pengkoneksi aplikasi langsung ke MySQL.
-- **Isi:** Seluruh perintah SQL mentah (SELECT, UPDATE, INSERT, DELETE) hidup di level ini. 
-- **Analogi:** "Petugas Gudang Rak Buku".
+Cek:
 
-#### 📂 `internal/dto/` (Data Transfer Object)
-- **Fungsi:** Jembatan pembungkus struktur format body Request/Response. Mengandung validasi tag _binding_ bawaan Gin.
+migrate -version
+🚀 Cara Menjalankan Project
+1. Clone Repository
+git clone https://github.com/username/golang-relational-db.git
+cd golang-relational-db
+2. Install Dependency
+go mod tidy
+3. Konfigurasi Environment
 
-#### 📂 `internal/utils/` (Helper)
-- **Fungsi:** Menaruh fungsi mungil serba-guna untuk merapikan pesan Error/Validasi/Response agar struktur JSON kembalian selalu seragam.
-- **Analogi:** "Pisau Dapur Multifungsi".
+Copy file .env.example menjadi .env lalu sesuaikan dengan konfigurasi lokal
 
----
-*Happy Coding & Selamat Belajar Clean Architecture dengan Golang!* ✨
+4. Setup Database
+Buat database:
+CREATE DATABASE golang_study;
+Jalankan migration:
+migrate -path db/migrations -database "mysql://root:password@tcp(localhost:3306)/golang_study" up
+5. Jalankan Server
+go run cmd/api/main.go
+
+Server akan berjalan di:
+
+http://localhost:8080
+📌 Contoh Endpoint
+1. Create Student
+POST /api/v1/students
+
+Request body:
+
+{
+  "name": "Budi",
+  "email": "budi@mail.com",
+  "class_id": 1
+}
+2. Get Students (Pagination + Search)
+GET /api/v1/students?page=1&limit=10&search=budi
+3. Get Student Detail
+GET /api/v1/students/1
+4. Student dengan Relasi Class & Teacher
+GET /api/v1/student/classes
+5. Rata-rata Nilai Student
+GET /api/v1/student/avg
+📁 Struktur Project
+cmd/
+internal/
+  ├── handler/
+  ├── service/
+  ├── repository/
+  ├── model/
+  ├── dto/
+  ├── routes/
+db/
+  └── migrations/
+Catatan
+Gunakan Postman untuk testing endpoint
+Pastikan database sudah aktif sebelum menjalankan server
+Migration harus dijalankan sebelum API digunakan
