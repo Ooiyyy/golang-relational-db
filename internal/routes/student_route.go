@@ -19,7 +19,7 @@ func StudentRoute(r *gin.Engine, studentHandler *handler.StudentHandler, student
 
 		// relasi
 		studentsRoute.GET("/students/detail", studentRelationalHandler.GetAllDetails)
-		studentsRoute.GET("/students/grades", studentRelationalHandler.GetStudentsGrade)
+		// studentsRoute.GET("/students/grades", studentRelationalHandler.GetStudentsGrade)
 		studentsRoute.GET("/students/avg", studentRelationalHandler.GetStudentsAvg)
 
 	}

@@ -25,6 +25,7 @@ func Run() {
 	studentRelationalRepo := mysql.NewStudentRelationalRepo(db)
 	classRepo := mysql.NewClassRepo(db)
 	subjectsRepo := mysql.NewSubjectsRepo(db)
+	gradeRepo := mysql.NewGradesRepo(db)
 
 	userService := service.NewUserService(userRepo)
 	subjectService := service.NewSubjectService(subjectRepo)
@@ -33,6 +34,7 @@ func Run() {
 	studentRelationalService := service.NewStudentRelationalService(studentRelationalRepo)
 	classServ := service.NewClassService(classRepo)
 	subjectsService := service.NewSubjectsService(subjectsRepo)
+	gradeServ := service.NewGradesService(gradeRepo)
 
 	authHandler := handler.NewAuthHandler(userService, jwtSecret)
 	subjectHandler := handler.NewSubjectHandler(subjectService)
@@ -41,6 +43,7 @@ func Run() {
 	studentRelationalHandler := handler.NewStudentRelationalHandler(studentRelationalService)
 	classHandler := handler.NewClassHandler(classServ)
 	subjectsHandler := handler.NewSubjectsHandler(subjectsService)
+	gradeHandler := handler.NewGradesHandler(*gradeServ)
 
 	r := routes.SetupRouter(
 		authHandler,
@@ -50,6 +53,7 @@ func Run() {
 		studentRelationalHandler,
 		classHandler,
 		subjectsHandler,
+		gradeHandler,
 		jwtSecret,
 	)
 
