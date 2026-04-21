@@ -64,5 +64,5 @@ func (h *SubjectsHandler) GetAllSubjects(c *gin.Context) {
 		TotalPage: totalPage,
 	}
 
-	c.JSON(http.StatusOK, utils.ListResponse("list data kelas berhasil dimuat", data, meta))
+	c.JSON(http.StatusOK, utils.ListResponse("list data pelajaran berhasil dimuat", data, meta))
 }
