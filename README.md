@@ -1,97 +1,123 @@
-📘 Golang Relational DB API
-Deskripsi
+# Golang Relational DB API
 
-Project ini adalah REST API berbasis Golang (Gin) untuk mengelola data:
+REST API sederhana menggunakan Golang (Gin) untuk mengelola data siswa, kelas, mata pelajaran, dan nilai.
+Mendukung relasi antar tabel (JOIN), pagination, search, dan perhitungan rata-rata nilai.
 
-Students
-Classes
-Subjects
-Grades
+## Fitur
 
-Fitur utama:
+- CRUD dasar (students, classes, subjects, grades)
+- Pagination, search, dan sorting
+- Relasi data (student + class + teacher)
+- Aggregate (average nilai siswa)
 
-CRUD dasar
-Pagination, search, dan sorting
-Relasi antar tabel (JOIN)
-Perhitungan rata-rata nilai siswa
-⚙️ Setup Awal (Prerequisites)
+## Prerequisites
 
-Pastikan sudah menginstall:
+Pastikan sudah terinstall:
 
-1. Golang
+1. **Golang**
+   ```bash
+   go version
+   ```
+2. **MySQL / MariaDB**
+   ```bash
+   mysql --version
+   ```
+3. **golang-migrate**
+   ```bash
+   go install github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+   ```
 
-Minimal versi 1.20+
+Tambahkan ke PATH jika perlu:
 
-Cek:
-
-go version
-
-Jika belum:
-https://go.dev/dl/
-
-2. MySQL / MariaDB
-
-Pastikan database server aktif.
-
-Cek:
-
-mysql --version
-3. golang-migrate (CLI)
-
-Tool ini digunakan untuk migration database.
-
-Install:
-
-go install github.com/golang-migrate/migrate/v4/cmd/migrate@latest
-
-Tambahkan ke PATH (jika belum):
-
+```bash
 export PATH=$PATH:$HOME/go/bin
+```
 
-Cek:
+## Setup Project
 
-migrate -version
-🚀 Cara Menjalankan Project
-1. Clone Repository
+**1. Clone repository**
+```bash
 git clone https://github.com/username/golang-relational-db.git
 cd golang-relational-db
-2. Install Dependency
+```
+
+**2. Install dependency**
+```bash
 go mod tidy
-3. Konfigurasi Environment
+```
 
-Copy file .env.example menjadi .env lalu sesuaikan dengan konfigurasi lokal
+**3. Setup environment**
 
-4. Setup Database
+Copy file:
+
+```bash
+cp .env.example .env
+```
+
+Edit sesuai konfigurasi:
+
+```env
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=root
+DB_PASSWORD=yourpassword
+DB_NAME=golang_study
+APP_PORT=8080
+```
+
+**4. Setup database**
+
 Buat database:
+
+```sql
 CREATE DATABASE golang_study;
+```
+
 Jalankan migration:
+
+```bash
 migrate -path db/migrations -database "mysql://root:password@tcp(localhost:3306)/golang_study" up
-5. Jalankan Server
+```
+
+**5. Jalankan server**
+```bash
 go run cmd/api/main.go
+```
 
-Server akan berjalan di:
+Server berjalan di:
 
-http://localhost:8080
-📌 Contoh Endpoint
-1. Create Student
-POST /api/v1/students
+`http://localhost:8080`
 
-Request body:
+## Contoh Endpoint
 
+### Create Student
+`POST /api/v1/students`
+
+Request:
+
+```json
 {
   "name": "Budi",
   "email": "budi@mail.com",
   "class_id": 1
 }
-2. Get Students (Pagination + Search)
-GET /api/v1/students?page=1&limit=10&search=budi
-3. Get Student Detail
-GET /api/v1/students/1
-4. Student dengan Relasi Class & Teacher
-GET /api/v1/student/classes
-5. Rata-rata Nilai Student
-GET /api/v1/student/avg
-📁 Struktur Project
+```
+
+### Get Students
+`GET /api/v1/students?page=1&limit=10&search=budi`
+
+### Get Student Detail
+`GET /api/v1/students/1`
+
+### Student dengan Class & Teacher
+`GET /api/v1/student/classes`
+
+### Rata-rata Nilai Student
+`GET /api/v1/student/avg`
+
+## Struktur Project
+
+```text
 cmd/
 internal/
   ├── handler/
@@ -102,7 +128,10 @@ internal/
   ├── routes/
 db/
   └── migrations/
-Catatan
-Gunakan Postman untuk testing endpoint
-Pastikan database sudah aktif sebelum menjalankan server
-Migration harus dijalankan sebelum API digunakan
+```
+
+## Catatan
+- Gunakan Postman untuk testing endpoint
+- Pastikan database aktif sebelum menjalankan server
+- Jalankan migration sebelum menggunakan API
+- File `.env` tidak disertakan di repository (gunakan `.env.example`)

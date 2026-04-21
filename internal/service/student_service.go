@@ -81,7 +81,7 @@ func (s *StudentService) GetAllStudents(page, limit int, search, classID, sortBy
 }
 
 func (s *StudentService) UpdateStudent(id int, student model.Students) error {
-	// cek dulu apakah data ada
+	// cek dulu apakah data ada menggunakan fungsi dari repo yang mencari berdasarkan id
 	_, err := s.GetStudentByID(id)
 	if err != nil {
 		return err // kalau tidak ada → langsung stop
