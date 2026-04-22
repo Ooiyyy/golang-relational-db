@@ -6,7 +6,7 @@ type SubjectsCepository interface {
 	Create(class *model.Subjects) error
 	FindAllSubjects(limit, offset int, search string, sortBy, order string) ([]model.Subjects, error)
 	AllSubjects(search string) (int, error)
-	// FindByID(id int) (*model.Students, error)
-	// Update(id int, student model.Students) error
-	// Delete(id int) error
+	FindSubjectByID(id int) (*model.Subjects, error)
+	UpdateSubject(id int, student model.Subjects) error
+	DeleteSubject(id int) error
 }

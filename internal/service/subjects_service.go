@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"golang-relational-db/internal/model"
 	"golang-relational-db/internal/repository"
 )
@@ -52,4 +53,37 @@ func (s *SubjectsService) GetAllSubjects(page, limit int, search, sortBy, order 
 		return nil, 0, err
 	}
 	return data, total, nil
+}
+
+func (s *SubjectsService) GetSubjectByID(id int) (*model.Subjects, error) {
+	subject, err := s.repo.FindSubjectByID(id)
+	if err != nil {
+		return nil, err // error DB
+	}
+
+	if subject == nil {
+		return nil, fmt.Errorf("subject tidak ditemukan") // handle not found
+	}
+
+	return subject, nil
+}
+
+func (s *SubjectsService) UpdateSubject(id int, subject model.Subjects) error {
+	// cek dulu apakah data ada menggunakan fungsi dari repo yang mencari berdasarkan id
+	_, err := s.GetSubjectByID(id)
+	if err != nil {
+		return err // kalau tidak ada → langsung stop
+	}
+
+	return s.repo.UpdateSubject(id, subject)
+}
+
+func (s *SubjectsService) DeleteSubject(id int) error {
+	// cek dulu
+	_, err := s.GetSubjectByID(id)
+	if err != nil {
+		return err
+	}
+
+	return s.repo.DeleteSubject(id)
 }

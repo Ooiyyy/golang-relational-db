@@ -102,6 +102,7 @@ func (h *StudentHandler) Update(c *gin.Context) {
 	}
 
 	student := model.Students{
+		ID:      id,
 		Name:    req.Name,
 		Email:   req.Email,
 		ClassID: req.ClassID,

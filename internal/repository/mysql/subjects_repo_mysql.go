@@ -87,3 +87,37 @@ func (r *SubjectsRepoImpl) AllSubjects(search string) (int, error) {
 	err := r.DB.QueryRow(query, args...).Scan(&total)
 	return total, err
 }
+
+func (r *SubjectsRepoImpl) FindSubjectByID(id int) (*model.Subjects, error) {
+	var sj model.Subjects
+
+	// ambil 1 data berdasarkan id
+	err := r.DB.QueryRow(
+		`SELECT sj.id, sj.name AS mapel, sj.teacher_id, t.name AS nama_guru
+		FROM subjects AS sj JOIN teachers AS t ON t.id = sj.teacher_id 
+		WHERE sj.id = ?`, id).Scan(&sj.Id, &sj.Name, &sj.TeacherID, &sj.TeacherName)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil // ⚠️ ini penting → tanda data tidak ada
+		}
+		return nil, err // error lain (DB error)
+	}
+
+	return &sj, nil
+}
+
+func (r *SubjectsRepoImpl) UpdateSubject(id int, subject model.Subjects) error {
+	_, err := r.DB.Exec(
+		"UPDATE subjects SET name=?, teacher_id=? WHERE id=?",
+		subject.Name,
+		subject.TeacherID,
+		id,
+	)
+	return err
+}
+
+func (r *SubjectsRepoImpl) DeleteSubject(id int) error {
+	_, err := r.DB.Exec("DELETE FROM subjects WHERE id=?", id)
+	return err
+}

@@ -66,3 +66,64 @@ func (h *SubjectsHandler) GetAllSubjects(c *gin.Context) {
 
 	c.JSON(http.StatusOK, utils.ListResponse("list data pelajaran berhasil dimuat", data, meta))
 }
+
+func (h *SubjectsHandler) GetSubjectByID(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(400, utils.ErrorResponse("id tidak valid", err.Error()))
+		return
+	}
+
+	data, err := h.service.GetSubjectByID(id)
+	if err != nil {
+		c.JSON(404, utils.ErrorResponse("Data pelajaran tidak ditemukan", err.Error()))
+		return
+	}
+
+	c.JSON(200, utils.SuccessResponse("Data pelajaran berhasil dimuat", data))
+}
+
+func (h *SubjectsHandler) UpdateSubject(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(400, utils.ErrorResponse("id tidak valid", err.Error()))
+		return
+	}
+
+	var req dto.UpdateSubjectsReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	subject := model.Subjects{
+		Id:        id,
+		Name:      req.Name,
+		TeacherID: req.TeacherID,
+	}
+
+	err = h.service.UpdateSubject(id, subject)
+	if err != nil {
+		validationErr := utils.FormatValidationError(err)
+		c.JSON(400, utils.ErrorResponse("Validation error", validationErr))
+		return
+	}
+
+	c.JSON(200, utils.SuccessResponse("Data pelajaran berhasil di update", subject))
+}
+
+func (h *SubjectsHandler) DeleteSubject(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(400, utils.ErrorResponse("id tidak valid", err.Error()))
+		return
+	}
+
+	err = h.service.DeleteSubject(id)
+	if err != nil {
+		c.JSON(404, utils.ErrorResponse("Data pelajaran tidak ditemukan", err.Error()))
+		return
+	}
+
+	c.JSON(200, utils.SuccessResponse("Data pelajaran berhasil dihapus", nil))
+}
