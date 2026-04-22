@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"golang-relational-db/internal/model"
 	"golang-relational-db/internal/repository"
 )
@@ -62,4 +63,37 @@ func (s *ClassService) GetAllClass(page, limit int, search, sortBy, order string
 		return nil, 0, err
 	}
 	return data, total, nil
+}
+
+func (s *ClassService) GetClassByID(id int) (*model.DetailClass, error) {
+	class, err := s.repo.FindClassByID(id)
+	if err != nil {
+		return nil, err // error DB
+	}
+
+	if class == nil {
+		return nil, fmt.Errorf("subject tidak ditemukan") // handle not found
+	}
+
+	return class, nil
+}
+
+func (s *ClassService) UpdateClass(id int, class model.Classes) error {
+	// cek dulu apakah data ada menggunakan fungsi dari repo yang mencari berdasarkan id
+	_, err := s.GetClassByID(id)
+	if err != nil {
+		return err // kalau tidak ada → langsung stop
+	}
+
+	return s.repo.UpdateClass(id, class)
+}
+
+func (s *ClassService) DeleteClass(id int) error {
+	// cek dulu
+	_, err := s.GetClassByID(id)
+	if err != nil {
+		return err
+	}
+
+	return s.repo.DeleteClass(id)
 }

@@ -66,3 +66,64 @@ func (h *ClassHandler) GetAllClass(c *gin.Context) {
 
 	c.JSON(http.StatusOK, utils.ListResponse("list data kelas berhasil dimuat", data, meta))
 }
+
+func (h *ClassHandler) GetClassByID(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(400, utils.ErrorResponse("id tidak valid", err.Error()))
+		return
+	}
+
+	data, err := h.service.GetClassByID(id)
+	if err != nil {
+		c.JSON(404, utils.ErrorResponse("Data kelas tidak ditemukan", err.Error()))
+		return
+	}
+
+	c.JSON(200, utils.SuccessResponse("Data kelas berhasil dimuat", data))
+}
+
+func (h *ClassHandler) UpdateClass(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(400, utils.ErrorResponse("id tidak valid", err.Error()))
+		return
+	}
+
+	var req dto.UpdateClassReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	class := model.Classes{
+		ID:        id,
+		Name:      req.Name,
+		TeacherID: req.TeacherID,
+	}
+
+	err = h.service.UpdateClass(id, class)
+	if err != nil {
+		validationErr := utils.FormatValidationError(err)
+		c.JSON(400, utils.ErrorResponse("Validation error", validationErr))
+		return
+	}
+
+	c.JSON(200, utils.SuccessResponse("Data kelas berhasil di update", class))
+}
+
+func (h *ClassHandler) DeleteClass(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(400, utils.ErrorResponse("id tidak valid", err.Error()))
+		return
+	}
+
+	err = h.service.DeleteClass(id)
+	if err != nil {
+		c.JSON(404, utils.ErrorResponse("Data kelas tidak ditemukan", err.Error()))
+		return
+	}
+
+	c.JSON(200, utils.SuccessResponse("Data kelas berhasil dihapus", nil))
+}

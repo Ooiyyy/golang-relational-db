@@ -35,18 +35,13 @@ func (r *ClassRepoImpl) Create(class *model.Classes) error {
 }
 
 func (r *ClassRepoImpl) FindAllClasses(limit, offset int, search string, sortBy, order string) ([]model.DetailClass, error) {
-	query := "SELECT c.id, c.name AS nama_kelas, t.name AS nama_guru FROM classes as c JOIN teachers AS t ON t.id = c.teacher_id WHERE 1=1"
+	query := "SELECT c.id, c.name AS nama_kelas, c.teacher_id, t.name AS nama_guru FROM classes as c JOIN teachers AS t ON t.id = c.teacher_id WHERE 1=1"
 	args := []interface{}{}
 
 	if search != "" {
 		query += " AND (LOWER(c.name) LIKE LOWER(?) OR LOWER(t.name) LIKE LOWER(?))"
 		args = append(args, "%"+search+"%", "%"+search+"%")
 	}
-
-	// if classID != 0 {
-	// 	query += " AND class_id =?"
-	// 	args = append(args, classID)
-	// }
 
 	query += " ORDER BY " + sortBy + " " + order
 
@@ -63,7 +58,7 @@ func (r *ClassRepoImpl) FindAllClasses(limit, offset int, search string, sortBy,
 
 	for rows.Next() {
 		var class model.DetailClass
-		err := rows.Scan(&class.ID, &class.Name, &class.TeacherName)
+		err := rows.Scan(&class.ID, &class.Name, &class.TeacherID, &class.TeacherName)
 		if err != nil {
 			return nil, err
 		}
@@ -83,12 +78,40 @@ func (r *ClassRepoImpl) AllClasses(search string) (int, error) {
 		args = append(args, "%"+search+"%", "%"+search+"%")
 	}
 
-	// if classID != 0 {
-	// 	query += " AND class_id = ?"
-	// 	args = append(args, classID)
-	// }
-
 	var total int
 	err := r.DB.QueryRow(query, args...).Scan(&total)
 	return total, err
+}
+
+func (r *ClassRepoImpl) FindClassByID(id int) (*model.DetailClass, error) {
+	var class model.DetailClass
+
+	// ambil 1 data berdasarkan id
+	err := r.DB.QueryRow(
+		`SELECT c.id, c.name AS nama_kelas, c.teacher_id, t.name AS nama_guru
+		FROM classes as c JOIN teachers AS t ON t.id = c.teacher_id
+		WHERE c.id=?`, id).Scan(&class.ID, &class.Name, &class.TeacherID, &class.TeacherName)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil // ⚠️ ini penting → tanda data tidak ada
+		}
+		return nil, err // error lain (DB error)
+	}
+	return &class, nil
+}
+
+func (r *ClassRepoImpl) UpdateClass(id int, class model.Classes) error {
+	_, err := r.DB.Exec(
+		"UPDATE classes SET name=?, teacher_id=? WHERE id=?",
+		class.Name,
+		class.TeacherID,
+		id,
+	)
+	return err
+}
+
+func (r *ClassRepoImpl) DeleteClass(id int) error {
+	_, err := r.DB.Exec("DELETE FROM classes WHERE id=?", id)
+	return err
 }
