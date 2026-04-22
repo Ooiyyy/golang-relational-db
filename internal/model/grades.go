@@ -8,8 +8,10 @@ type Grades struct {
 }
 
 type GradesDetail struct {
-	ID          int `json:"id"`
-	StudentName int `json:"student_name"`
-	SubjectName int `json:"subject_name"`
-	Score       int `json:"score"`
+	ID          int    `json:"id"`
+	StudentID   int    `json:"student_id"`
+	StudentName string `json:"student_name"`
+	SubjectID   int    `json:"subject_id"`
+	SubjectName string `json:"subject_name"`
+	Score       int    `json:"score"`
 }

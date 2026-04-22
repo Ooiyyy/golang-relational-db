@@ -5,6 +5,7 @@ import (
 	"golang-relational-db/internal/model"
 	"golang-relational-db/internal/repository"
 	"strconv"
+	"strings"
 )
 
 // service pegang business logic
@@ -61,7 +62,7 @@ func (s *StudentRelationalService) GetStudentsDetail(page, limit int, search, cl
 	return data, total, nil
 }
 
-func (s *StudentRelationalService) GetStudentsGrade(page, limit int, search, classID, sortBy, order string) ([]model.StudentsGrade, int, error) {
+func (s *StudentRelationalService) GetStudentsGrade(page, limit int, search, classID, sortBy, order string) ([]model.GradesDetail, int, error) {
 	if page < 1 {
 		page = 1
 	}
@@ -120,18 +121,13 @@ func (s *StudentRelationalService) GetStudensAvg(page, limit int, search, classI
 		if err != nil {
 			return nil, 0, fmt.Errorf("class_id harus angka")
 		}
-		return nil, classIDInt, err
 	}
 
-	allowedSort := map[string]bool{
-		"id":    true,
-		"name":  true,
-		"email": true,
-	}
-	if !allowedSort[sortBy] {
+	if sortBy == "" {
 		sortBy = "id"
 	}
 
+	order = strings.ToLower(order)
 	if order != "asc" && order != "desc" {
 		order = "asc"
 	}

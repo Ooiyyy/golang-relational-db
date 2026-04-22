@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"golang-relational-db/internal/model"
+	"strings"
 )
 
 type StudentRelationalImpl struct {
@@ -83,9 +84,10 @@ func (r *StudentRelationalImpl) Pages(search string, classID int) (int, error) {
 	return total, err
 }
 
-func (r *StudentRelationalImpl) StudentsGrade(limit, offset int, search string, classID int, sortBy, order string) ([]model.StudentsGrade, error) {
-	query := `SELECT s.id, s.name AS nama_siswa,
+func (r *StudentRelationalImpl) StudentsGrade(limit, offset int, search string, classID int, sortBy, order string) ([]model.GradesDetail, error) {
+	query := `SELECT g.id, s.id AS id_siswa, s.name AS nama_siswa,
 				g.score AS nilai,
+				sj.id AS id_mapel,
 				sj.name AS mapel
 				FROM grades AS g
 				JOIN students AS s ON s.id = g.student_id
@@ -102,10 +104,30 @@ func (r *StudentRelationalImpl) StudentsGrade(limit, offset int, search string, 
 		args = append(args, classID)
 	}
 
-	query += " ORDER BY " + sortBy + " " + order
+	allowedSort := map[string]string{
+		"id":      "g.id",
+		"student": "s.name",
+		"subject": "sj.name",
+		"score":   "g.score",
+	}
+
+	sortColumn, ok := allowedSort[sortBy]
+	if !ok {
+		sortColumn = "g.id"
+	}
+
+	order = strings.ToUpper(order)
+	if order != "ASC" && order != "DESC" {
+		order = "ASC"
+	}
+
+	query += " ORDER BY " + sortColumn + " " + order
 
 	query += " LIMIT ? OFFSET ?"
 	args = append(args, limit, offset)
+
+	fmt.Println("QUERY:", query)
+	fmt.Println("ARGS:", args)
 
 	rows, err := r.DB.Query(query, args...)
 	if err != nil {
@@ -113,18 +135,16 @@ func (r *StudentRelationalImpl) StudentsGrade(limit, offset int, search string, 
 	}
 	defer rows.Close()
 
-	var studentsGrade []model.StudentsGrade
+	var studentsGrade []model.GradesDetail
 
 	for rows.Next() {
-		var student model.StudentsGrade
-		err := rows.Scan(&student.ID, &student.Name, &student.Nilai, &student.Mapel)
+		var student model.GradesDetail
+		err := rows.Scan(&student.ID, &student.StudentID, &student.StudentName, &student.Score, &student.SubjectID, &student.SubjectName)
 		if err != nil {
 			return nil, err
 		}
 		studentsGrade = append(studentsGrade, student)
 	}
-	fmt.Println("QUERY:", query)
-	fmt.Println("ARGS:", args)
 	return studentsGrade, nil
 }
 

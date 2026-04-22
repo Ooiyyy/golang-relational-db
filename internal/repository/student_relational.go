@@ -7,6 +7,6 @@ type StudentRelational interface {
 	PageGrades(search string, classID int) (int, error)
 	PageAvg(search string, classID int) (int, error)
 	StudentsDetail(limit, offset int, search string, classID int, sortBy, order string) ([]model.StudentDetail, error)
-	StudentsGrade(limit, offset int, search string, classID int, sortBy, order string) ([]model.StudentsGrade, error)
+	StudentsGrade(limit, offset int, search string, classID int, sortBy, order string) ([]model.GradesDetail, error)
 	StudentsAvg(limit, offset int, search string, classID int, sortBy, order string) ([]model.StudentsAvg, error)
 }
