@@ -103,7 +103,7 @@ func (r *StudentRelationalImpl) StudentsGrade(limit, offset int, search string, 
 		query += " AND s.class_id = ?"
 		args = append(args, classID)
 	}
-
+	// ######### Mencegah sql injection ###################
 	allowedSort := map[string]string{
 		"id":      "g.id",
 		"student": "s.name",
@@ -125,9 +125,7 @@ func (r *StudentRelationalImpl) StudentsGrade(limit, offset int, search string, 
 
 	query += " LIMIT ? OFFSET ?"
 	args = append(args, limit, offset)
-
-	fmt.Println("QUERY:", query)
-	fmt.Println("ARGS:", args)
+	// #############################################################
 
 	rows, err := r.DB.Query(query, args...)
 	if err != nil {

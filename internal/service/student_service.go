@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"fmt"
 	"golang-relational-db/internal/model"
 	"golang-relational-db/internal/repository"
@@ -9,17 +10,30 @@ import (
 
 // service pegang business logic
 type StudentService struct {
-	repo repository.StudentRepository
+	repo      repository.StudentRepository
+	classRepo repository.ClassRepository
 }
 
 // constructor
-func NewStudentService(repo repository.StudentRepository) *StudentService {
-	return &StudentService{repo: repo}
+func NewStudentService(repo repository.StudentRepository, classRepo repository.ClassRepository) *StudentService {
+	return &StudentService{repo: repo, classRepo: classRepo}
 }
 
 // Create student baru
 func (s *StudentService) CreateStudent(student *model.Students) error {
 	// bisa tambah validasi manual di sini kalau mau
+	_, err := s.classRepo.FindClassByID(student.ClassID)
+	if err != nil {
+		return errors.New("kelas tidak ditemukan") // kalau tidak ada → langsung stop
+	}
+	email := student.Email
+	exists, err := s.repo.IsStudentEmailExists(email)
+	if err != nil {
+		return err
+	}
+	if exists {
+		return errors.New("email sudah digunakan")
+	}
 	return s.repo.Create(student)
 }
 
@@ -86,7 +100,6 @@ func (s *StudentService) UpdateStudent(id int, student model.Students) error {
 	if err != nil {
 		return err // kalau tidak ada → langsung stop
 	}
-
 	return s.repo.Update(id, student)
 }
 

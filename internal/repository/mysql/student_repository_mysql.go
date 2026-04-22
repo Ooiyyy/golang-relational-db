@@ -15,6 +15,16 @@ func NewStudentRepo(db *sql.DB) *StudentRepoImpl {
 	return &StudentRepoImpl{DB: db}
 }
 
+func (r *StudentRepoImpl) IsStudentEmailExists(email string) (bool, error) {
+	var count int
+	query := `SELECT COUNT(*) from students where email=?`
+	err := r.DB.QueryRow(query, email).Scan(&count)
+	if err != nil {
+		return false, nil
+	}
+	return count > 0, nil
+}
+
 // Insert data student ke database
 func (r *StudentRepoImpl) Create(student *model.Students) error {
 	result, err := r.DB.Exec(

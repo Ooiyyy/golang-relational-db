@@ -12,74 +12,68 @@ import (
 )
 
 // handler untuk HTTP layer
-type StudentHandler struct {
-	service *service.StudentService
+type TeacherHandler struct {
+	service *service.TeacherService
 }
 
 // constructor
-func NewStudentHandler(s *service.StudentService) *StudentHandler {
-	return &StudentHandler{service: s}
+func NewTeacherHandler(s *service.TeacherService) *TeacherHandler {
+	return &TeacherHandler{service: s}
 }
 
-func (h *StudentHandler) Create(c *gin.Context) {
-	var req dto.CreateStudentReq
+func (h *TeacherHandler) Create(c *gin.Context) {
+	var req dto.CreateTeacherReq
 
 	// bind JSON ke DTO
 	if err := c.ShouldBindJSON(&req); err != nil {
 		validationErr := utils.FormatValidationError(err)
-		c.JSON(400, utils.ErrorResponse("validasi error", validationErr))
+		c.JSON(400, utils.ErrorResponse("Validation error", validationErr))
 		return
 	}
 
 	// convert DTO → model
-	student := model.Students{
-		Name:    req.Name,
-		Email:   req.Email,
-		ClassID: req.ClassID,
+	teacher := model.Teachers{
+		Name:  req.Name,
+		Email: req.Email,
 	}
 
-	err := h.service.CreateStudent(&student)
+	err := h.service.CreateTeacher(&teacher)
 	if err != nil {
-		if err.Error() == "kelas tidak ditemukan" {
-			c.JSON(http.StatusNotFound, utils.ErrorResponse("not found", err.Error()))
-			return
-		}
 		if err.Error() == "email sudah digunakan" {
 			c.JSON(http.StatusConflict, utils.ErrorResponse("konflik data", err.Error()))
 			return
 		}
 		c.JSON(500, utils.ErrorResponse("Terjadi kesalahan pada server", err.Error()))
-		return
 	}
-	c.JSON(201, utils.SuccessResponse("Siswa berhasil ditambahkan", student))
+
+	c.JSON(201, utils.SuccessResponse("Guru berhasil ditambahkan", teacher))
 }
 
-func (h *StudentHandler) GetByID(c *gin.Context) {
+func (h *TeacherHandler) GetByID(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(400, utils.ErrorResponse("id tidak valid", err.Error()))
 		return
 	}
 
-	data, err := h.service.GetStudentByID(id)
+	data, err := h.service.GetTeacherByID(id)
 	if err != nil {
-		c.JSON(404, utils.ErrorResponse("Data siswa tidak ditemukan", err.Error()))
+		c.JSON(404, utils.ErrorResponse("Data Guru tidak ditemukan", err.Error()))
 		return
 	}
 
-	c.JSON(200, utils.SuccessResponse("Data siswa berhasil dimuat", data))
+	c.JSON(200, utils.SuccessResponse("Data guru berhasil dimuat", data))
 }
 
-func (h *StudentHandler) GetAll(c *gin.Context) {
+func (h *TeacherHandler) GetAll(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
 
 	search := c.Query("search")
-	classID := c.Query("class_id")
 	sortBy := c.DefaultQuery("sort_by", "id")
 	order := c.DefaultQuery("order", "asc")
 
-	data, total, err := h.service.GetAllStudents(page, limit, search, classID, sortBy, order)
+	data, total, err := h.service.GetAllTeachers(page, limit, search, sortBy, order)
 	if err != nil {
 		c.JSON(500, utils.ErrorResponse("Terjadi kesalahan pada server", err.Error()))
 		return
@@ -93,51 +87,50 @@ func (h *StudentHandler) GetAll(c *gin.Context) {
 		TotalPage: totalPage,
 	}
 
-	c.JSON(200, utils.ListResponse("List siswa berhasil dimuat", data, meta))
+	c.JSON(200, utils.ListResponse("List guru berhasil dimuat", data, meta))
 }
 
-func (h *StudentHandler) Update(c *gin.Context) {
+func (h *TeacherHandler) Update(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(400, utils.ErrorResponse("id tidak valid", err.Error()))
 		return
 	}
 
-	var req dto.UpdateStudentReq
+	var req dto.UpdateTeacherReq
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
 
-	student := model.Students{
-		ID:      id,
-		Name:    req.Name,
-		Email:   req.Email,
-		ClassID: req.ClassID,
+	teacher := model.Teachers{
+		ID:    id,
+		Name:  req.Name,
+		Email: req.Email,
 	}
 
-	err = h.service.UpdateStudent(id, student)
+	err = h.service.UpdateTeacher(id, teacher)
 	if err != nil {
 		validationErr := utils.FormatValidationError(err)
 		c.JSON(400, utils.ErrorResponse("Validation error", validationErr))
 		return
 	}
 
-	c.JSON(200, utils.SuccessResponse("Data siswa berhasil di update", student))
+	c.JSON(200, utils.SuccessResponse("Data guru berhasil di update", teacher))
 }
 
-func (h *StudentHandler) Delete(c *gin.Context) {
+func (h *TeacherHandler) Delete(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(400, utils.ErrorResponse("id tidak valid", err.Error()))
 		return
 	}
 
-	err = h.service.DeleteStudent(id)
+	err = h.service.DeleteTeacher(id)
 	if err != nil {
-		c.JSON(404, utils.ErrorResponse("Data siswa tidak ditemukan", err.Error()))
+		c.JSON(404, utils.ErrorResponse("Data guru tidak ditemukan", err.Error()))
 		return
 	}
 
-	c.JSON(200, utils.SuccessResponse("Data siswa berhasil dihapus", nil))
+	c.JSON(200, utils.SuccessResponse("Data guru berhasil dihapus", nil))
 }
