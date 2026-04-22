@@ -3,6 +3,7 @@ package handler
 import (
 	"golang-relational-db/internal/dto"
 	"golang-relational-db/internal/model"
+	"golang-relational-db/internal/repository"
 	"golang-relational-db/internal/service"
 	"golang-relational-db/internal/utils"
 	"net/http"
@@ -13,10 +14,11 @@ import (
 
 type ClassHandler struct {
 	service *service.ClassService
+	logRepo repository.ActivityLogRepository
 }
 
-func NewClassHandler(s *service.ClassService) *ClassHandler {
-	return &ClassHandler{service: s}
+func NewClassHandler(s *service.ClassService, logRepo repository.ActivityLogRepository) *ClassHandler {
+	return &ClassHandler{service: s, logRepo: logRepo}
 }
 
 func (h *ClassHandler) CreateClass(c *gin.Context) {
@@ -35,9 +37,20 @@ func (h *ClassHandler) CreateClass(c *gin.Context) {
 
 	err := h.service.CreateClass(&class)
 	if err != nil {
+		if err.Error() == "guru tidak ditemukan" {
+			c.JSON(http.StatusNotFound, utils.ErrorResponse("not found", err.Error()))
+			return
+		}
 		c.JSON(http.StatusInternalServerError, utils.ErrorResponse("Terjadi kesalahan server", err.Error()))
 		return
 	}
+	ip := c.ClientIP()
+
+	log := model.ActivityLog{
+		IP:        ip,
+		Aktivitas: "Menambah data kelas",
+	}
+	h.logRepo.Create(log)
 
 	c.JSON(http.StatusCreated, utils.SuccessResponse("Kelas berhasil ditambahkan", class))
 }
@@ -63,6 +76,13 @@ func (h *ClassHandler) GetAllClass(c *gin.Context) {
 		TotalData: total,
 		TotalPage: totalPage,
 	}
+	ip := c.ClientIP()
+
+	log := model.ActivityLog{
+		IP:        ip,
+		Aktivitas: "Mengambil list data kelas",
+	}
+	h.logRepo.Create(log)
 
 	c.JSON(http.StatusOK, utils.ListResponse("list data kelas berhasil dimuat", data, meta))
 }
@@ -79,6 +99,13 @@ func (h *ClassHandler) GetClassByID(c *gin.Context) {
 		c.JSON(404, utils.ErrorResponse("Data kelas tidak ditemukan", err.Error()))
 		return
 	}
+	ip := c.ClientIP()
+
+	log := model.ActivityLog{
+		IP:        ip,
+		Aktivitas: "Mengambil data kelas",
+	}
+	h.logRepo.Create(log)
 
 	c.JSON(200, utils.SuccessResponse("Data kelas berhasil dimuat", data))
 }
@@ -108,6 +135,13 @@ func (h *ClassHandler) UpdateClass(c *gin.Context) {
 		c.JSON(400, utils.ErrorResponse("Validation error", validationErr))
 		return
 	}
+	ip := c.ClientIP()
+
+	log := model.ActivityLog{
+		IP:        ip,
+		Aktivitas: "Mengubah data kelas",
+	}
+	h.logRepo.Create(log)
 
 	c.JSON(200, utils.SuccessResponse("Data kelas berhasil di update", class))
 }
@@ -124,6 +158,13 @@ func (h *ClassHandler) DeleteClass(c *gin.Context) {
 		c.JSON(404, utils.ErrorResponse("Data kelas tidak ditemukan", err.Error()))
 		return
 	}
+	ip := c.ClientIP()
+
+	log := model.ActivityLog{
+		IP:        ip,
+		Aktivitas: "Menghapus data kelas",
+	}
+	h.logRepo.Create(log)
 
 	c.JSON(200, utils.SuccessResponse("Data kelas berhasil dihapus", nil))
 }

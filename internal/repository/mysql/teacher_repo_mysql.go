@@ -2,6 +2,7 @@ package mysql
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"golang-relational-db/internal/model"
 	"strings"
@@ -123,7 +124,7 @@ func (r *TeacherRepoImpl) FindTeacherByID(id int) (*model.Teachers, error) {
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, nil // ⚠️ ini penting → tanda data tidak ada
+			return nil, errors.New("guru tidak ditemukan") // ⚠️ ini penting → tanda data tidak ada
 		}
 		return nil, err // error lain (DB error)
 	}

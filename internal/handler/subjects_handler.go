@@ -3,6 +3,7 @@ package handler
 import (
 	"golang-relational-db/internal/dto"
 	"golang-relational-db/internal/model"
+	"golang-relational-db/internal/repository"
 	"golang-relational-db/internal/service"
 	"golang-relational-db/internal/utils"
 	"net/http"
@@ -13,10 +14,11 @@ import (
 
 type SubjectsHandler struct {
 	service *service.SubjectsService
+	logRepo repository.ActivityLogRepository
 }
 
-func NewSubjectsHandler(s *service.SubjectsService) *SubjectsHandler {
-	return &SubjectsHandler{service: s}
+func NewSubjectsHandler(s *service.SubjectsService, logRepo repository.ActivityLogRepository) *SubjectsHandler {
+	return &SubjectsHandler{service: s, logRepo: logRepo}
 }
 
 func (h *SubjectsHandler) CreateSubjects(c *gin.Context) {
@@ -35,9 +37,20 @@ func (h *SubjectsHandler) CreateSubjects(c *gin.Context) {
 
 	err := h.service.CreateSubjects(&subject)
 	if err != nil {
+		if err.Error() == "guru tidak ditemukan" {
+			c.JSON(http.StatusNotFound, utils.ErrorResponse("not found", err.Error()))
+			return
+		}
 		c.JSON(http.StatusInternalServerError, utils.ErrorResponse("Terjadi kesalahan server", err.Error()))
 		return
 	}
+	ip := c.ClientIP()
+
+	log := model.ActivityLog{
+		IP:        ip,
+		Aktivitas: "Menambah data pelajaran",
+	}
+	h.logRepo.Create(log)
 
 	c.JSON(http.StatusCreated, utils.SuccessResponse("Kelas berhasil ditambahkan", subject))
 }
@@ -63,6 +76,13 @@ func (h *SubjectsHandler) GetAllSubjects(c *gin.Context) {
 		TotalData: total,
 		TotalPage: totalPage,
 	}
+	ip := c.ClientIP()
+
+	log := model.ActivityLog{
+		IP:        ip,
+		Aktivitas: "Mengambil list data pelajaran",
+	}
+	h.logRepo.Create(log)
 
 	c.JSON(http.StatusOK, utils.ListResponse("list data pelajaran berhasil dimuat", data, meta))
 }
@@ -79,6 +99,13 @@ func (h *SubjectsHandler) GetSubjectByID(c *gin.Context) {
 		c.JSON(404, utils.ErrorResponse("Data pelajaran tidak ditemukan", err.Error()))
 		return
 	}
+	ip := c.ClientIP()
+
+	log := model.ActivityLog{
+		IP:        ip,
+		Aktivitas: "Mengambil data pelajaran",
+	}
+	h.logRepo.Create(log)
 
 	c.JSON(200, utils.SuccessResponse("Data pelajaran berhasil dimuat", data))
 }
@@ -108,6 +135,13 @@ func (h *SubjectsHandler) UpdateSubject(c *gin.Context) {
 		c.JSON(400, utils.ErrorResponse("Validation error", validationErr))
 		return
 	}
+	ip := c.ClientIP()
+
+	log := model.ActivityLog{
+		IP:        ip,
+		Aktivitas: "Mengubah data pelajaran",
+	}
+	h.logRepo.Create(log)
 
 	c.JSON(200, utils.SuccessResponse("Data pelajaran berhasil di update", subject))
 }
@@ -124,6 +158,13 @@ func (h *SubjectsHandler) DeleteSubject(c *gin.Context) {
 		c.JSON(404, utils.ErrorResponse("Data pelajaran tidak ditemukan", err.Error()))
 		return
 	}
+	ip := c.ClientIP()
+
+	log := model.ActivityLog{
+		IP:        ip,
+		Aktivitas: "Menghapus data pelajaran",
+	}
+	h.logRepo.Create(log)
 
 	c.JSON(200, utils.SuccessResponse("Data pelajaran berhasil dihapus", nil))
 }

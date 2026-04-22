@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"fmt"
 	"golang-relational-db/internal/model"
 	"golang-relational-db/internal/repository"
@@ -8,17 +9,22 @@ import (
 
 // service pegang business logic
 type ClassService struct {
-	repo repository.ClassRepository
+	repo        repository.ClassRepository
+	teacherRepo repository.TeacherRepository
 }
 
 // constructor
-func NewClassService(repo repository.ClassRepository) *ClassService {
-	return &ClassService{repo: repo}
+func NewClassService(repo repository.ClassRepository, teacherRepo repository.TeacherRepository) *ClassService {
+	return &ClassService{repo: repo, teacherRepo: teacherRepo}
 }
 
 // Create student baru
 func (s *ClassService) CreateClass(class *model.Classes) error {
 	// bisa tambah validasi manual di sini kalau mau
+	_, err := s.teacherRepo.FindTeacherByID(class.TeacherID)
+	if err != nil {
+		return errors.New("guru tidak ditemukan") // kalau tidak ada → langsung stop
+	}
 	return s.repo.Create(class)
 }
 

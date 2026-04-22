@@ -2,6 +2,7 @@ package mysql
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"golang-relational-db/internal/model"
 )
@@ -99,7 +100,7 @@ func (r *SubjectsRepoImpl) FindSubjectByID(id int) (*model.Subjects, error) {
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, nil // ⚠️ ini penting → tanda data tidak ada
+			return nil, errors.New("mapel tidak ditemukan") // ⚠️ ini penting → tanda data tidak ada
 		}
 		return nil, err // error lain (DB error)
 	}

@@ -3,6 +3,7 @@ package handler
 import (
 	"golang-relational-db/internal/dto"
 	"golang-relational-db/internal/model"
+	"golang-relational-db/internal/repository"
 	"golang-relational-db/internal/service"
 	"golang-relational-db/internal/utils"
 	"net/http"
@@ -14,11 +15,12 @@ import (
 // handler untuk HTTP layer
 type TeacherHandler struct {
 	service *service.TeacherService
+	logRepo repository.ActivityLogRepository
 }
 
 // constructor
-func NewTeacherHandler(s *service.TeacherService) *TeacherHandler {
-	return &TeacherHandler{service: s}
+func NewTeacherHandler(s *service.TeacherService, logRepo repository.ActivityLogRepository) *TeacherHandler {
+	return &TeacherHandler{service: s, logRepo: logRepo}
 }
 
 func (h *TeacherHandler) Create(c *gin.Context) {
@@ -45,7 +47,14 @@ func (h *TeacherHandler) Create(c *gin.Context) {
 		}
 		c.JSON(500, utils.ErrorResponse("Terjadi kesalahan pada server", err.Error()))
 	}
+	ip := c.ClientIP()
 
+	log := model.ActivityLog{
+		IP:        ip,
+		Aktivitas: "Menambahkan data guru " + teacher.Name,
+	}
+
+	h.logRepo.Create(log)
 	c.JSON(201, utils.SuccessResponse("Guru berhasil ditambahkan", teacher))
 }
 
@@ -61,6 +70,14 @@ func (h *TeacherHandler) GetByID(c *gin.Context) {
 		c.JSON(404, utils.ErrorResponse("Data Guru tidak ditemukan", err.Error()))
 		return
 	}
+	ip := c.ClientIP()
+
+	log := model.ActivityLog{
+		IP:        ip,
+		Aktivitas: "Mengambil data guru",
+	}
+
+	h.logRepo.Create(log)
 
 	c.JSON(200, utils.SuccessResponse("Data guru berhasil dimuat", data))
 }
@@ -86,6 +103,14 @@ func (h *TeacherHandler) GetAll(c *gin.Context) {
 		TotalData: total,
 		TotalPage: totalPage,
 	}
+	ip := c.ClientIP()
+
+	log := model.ActivityLog{
+		IP:        ip,
+		Aktivitas: "Mengambil list data guru",
+	}
+
+	h.logRepo.Create(log)
 
 	c.JSON(200, utils.ListResponse("List guru berhasil dimuat", data, meta))
 }
@@ -115,6 +140,14 @@ func (h *TeacherHandler) Update(c *gin.Context) {
 		c.JSON(400, utils.ErrorResponse("Validation error", validationErr))
 		return
 	}
+	ip := c.ClientIP()
+
+	log := model.ActivityLog{
+		IP:        ip,
+		Aktivitas: "Mengubah data guru",
+	}
+
+	h.logRepo.Create(log)
 
 	c.JSON(200, utils.SuccessResponse("Data guru berhasil di update", teacher))
 }
@@ -131,6 +164,14 @@ func (h *TeacherHandler) Delete(c *gin.Context) {
 		c.JSON(404, utils.ErrorResponse("Data guru tidak ditemukan", err.Error()))
 		return
 	}
+	ip := c.ClientIP()
+
+	log := model.ActivityLog{
+		IP:        ip,
+		Aktivitas: "Menghapus data guru",
+	}
+
+	h.logRepo.Create(log)
 
 	c.JSON(200, utils.SuccessResponse("Data guru berhasil dihapus", nil))
 }
