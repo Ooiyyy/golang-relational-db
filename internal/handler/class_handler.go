@@ -44,13 +44,7 @@ func (h *ClassHandler) CreateClass(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, utils.ErrorResponse("Terjadi kesalahan server", err.Error()))
 		return
 	}
-	ip := c.ClientIP()
-
-	log := model.ActivityLog{
-		IP:        ip,
-		Aktivitas: "Menambah data kelas",
-	}
-	h.logRepo.Create(log)
+	utils.TambahLog(h.logRepo, c, "Menambah data kelas")
 
 	c.JSON(http.StatusCreated, utils.SuccessResponse("Kelas berhasil ditambahkan", class))
 }
@@ -76,13 +70,7 @@ func (h *ClassHandler) GetAllClass(c *gin.Context) {
 		TotalData: total,
 		TotalPage: totalPage,
 	}
-	ip := c.ClientIP()
-
-	log := model.ActivityLog{
-		IP:        ip,
-		Aktivitas: "Mengambil list data kelas",
-	}
-	h.logRepo.Create(log)
+	utils.TambahLog(h.logRepo, c, "Mengambil list data kelas")
 
 	c.JSON(http.StatusOK, utils.ListResponse("list data kelas berhasil dimuat", data, meta))
 }
@@ -99,13 +87,7 @@ func (h *ClassHandler) GetClassByID(c *gin.Context) {
 		c.JSON(404, utils.ErrorResponse("Data kelas tidak ditemukan", err.Error()))
 		return
 	}
-	ip := c.ClientIP()
-
-	log := model.ActivityLog{
-		IP:        ip,
-		Aktivitas: "Mengambil data kelas",
-	}
-	h.logRepo.Create(log)
+	utils.TambahLog(h.logRepo, c, "Mengambil data kelas")
 
 	c.JSON(200, utils.SuccessResponse("Data kelas berhasil dimuat", data))
 }
@@ -140,13 +122,7 @@ func (h *ClassHandler) UpdateClass(c *gin.Context) {
 		c.JSON(400, utils.ErrorResponse("Validation error", validationErr))
 		return
 	}
-	ip := c.ClientIP()
-
-	log := model.ActivityLog{
-		IP:        ip,
-		Aktivitas: "Mengubah data kelas",
-	}
-	h.logRepo.Create(log)
+	utils.TambahLog(h.logRepo, c, "Mengubah data kelas")
 
 	c.JSON(200, utils.SuccessResponse("Data kelas berhasil di update", class))
 }
@@ -163,13 +139,7 @@ func (h *ClassHandler) DeleteClass(c *gin.Context) {
 		c.JSON(404, utils.ErrorResponse("Data kelas tidak ditemukan", err.Error()))
 		return
 	}
-	ip := c.ClientIP()
-
-	log := model.ActivityLog{
-		IP:        ip,
-		Aktivitas: "Menghapus data kelas",
-	}
-	h.logRepo.Create(log)
+	utils.TambahLog(h.logRepo, c, "Menghapus data kelas")
 
 	c.JSON(200, utils.SuccessResponse("Data kelas berhasil dihapus", nil))
 }

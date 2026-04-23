@@ -44,13 +44,7 @@ func (h *SubjectsHandler) CreateSubjects(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, utils.ErrorResponse("Terjadi kesalahan server", err.Error()))
 		return
 	}
-	ip := c.ClientIP()
-
-	log := model.ActivityLog{
-		IP:        ip,
-		Aktivitas: "Menambah data pelajaran",
-	}
-	h.logRepo.Create(log)
+	utils.TambahLog(h.logRepo, c, "Menambah data pelajaran")
 
 	c.JSON(http.StatusCreated, utils.SuccessResponse("Kelas berhasil ditambahkan", subject))
 }
@@ -76,13 +70,7 @@ func (h *SubjectsHandler) GetAllSubjects(c *gin.Context) {
 		TotalData: total,
 		TotalPage: totalPage,
 	}
-	ip := c.ClientIP()
-
-	log := model.ActivityLog{
-		IP:        ip,
-		Aktivitas: "Mengambil list data pelajaran",
-	}
-	h.logRepo.Create(log)
+	utils.TambahLog(h.logRepo, c, "Mengambil list data pelajaran")
 
 	c.JSON(http.StatusOK, utils.ListResponse("list data pelajaran berhasil dimuat", data, meta))
 }
@@ -99,13 +87,7 @@ func (h *SubjectsHandler) GetSubjectByID(c *gin.Context) {
 		c.JSON(404, utils.ErrorResponse("Data pelajaran tidak ditemukan", err.Error()))
 		return
 	}
-	ip := c.ClientIP()
-
-	log := model.ActivityLog{
-		IP:        ip,
-		Aktivitas: "Mengambil data pelajaran",
-	}
-	h.logRepo.Create(log)
+	utils.TambahLog(h.logRepo, c, "Mengambil data pelajaran")
 
 	c.JSON(200, utils.SuccessResponse("Data pelajaran berhasil dimuat", data))
 }
@@ -144,13 +126,7 @@ func (h *SubjectsHandler) UpdateSubject(c *gin.Context) {
 		c.JSON(400, utils.ErrorResponse("Validation error", validationErr))
 		return
 	}
-	ip := c.ClientIP()
-
-	log := model.ActivityLog{
-		IP:        ip,
-		Aktivitas: "Mengubah data pelajaran",
-	}
-	h.logRepo.Create(log)
+	utils.TambahLog(h.logRepo, c, "Mengubah data pelajaran")
 
 	c.JSON(200, utils.SuccessResponse("Data pelajaran berhasil di update", subject))
 }
@@ -167,13 +143,7 @@ func (h *SubjectsHandler) DeleteSubject(c *gin.Context) {
 		c.JSON(404, utils.ErrorResponse("Data pelajaran tidak ditemukan", err.Error()))
 		return
 	}
-	ip := c.ClientIP()
-
-	log := model.ActivityLog{
-		IP:        ip,
-		Aktivitas: "Menghapus data pelajaran",
-	}
-	h.logRepo.Create(log)
+	utils.TambahLog(h.logRepo, c, "Menghapus data pelajaran")
 
 	c.JSON(200, utils.SuccessResponse("Data pelajaran berhasil dihapus", nil))
 }

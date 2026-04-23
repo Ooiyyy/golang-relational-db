@@ -47,14 +47,8 @@ func (h *TeacherHandler) Create(c *gin.Context) {
 		}
 		c.JSON(500, utils.ErrorResponse("Terjadi kesalahan pada server", err.Error()))
 	}
-	ip := c.ClientIP()
+	utils.TambahLog(h.logRepo, c, "Menambah data guru")
 
-	log := model.ActivityLog{
-		IP:        ip,
-		Aktivitas: "Menambahkan data guru " + teacher.Name,
-	}
-
-	h.logRepo.Create(log)
 	c.JSON(201, utils.SuccessResponse("Guru berhasil ditambahkan", teacher))
 }
 
@@ -70,14 +64,7 @@ func (h *TeacherHandler) GetByID(c *gin.Context) {
 		c.JSON(404, utils.ErrorResponse("Data Guru tidak ditemukan", err.Error()))
 		return
 	}
-	ip := c.ClientIP()
-
-	log := model.ActivityLog{
-		IP:        ip,
-		Aktivitas: "Mengambil data guru",
-	}
-
-	h.logRepo.Create(log)
+	utils.TambahLog(h.logRepo, c, "Mengambil data guru")
 
 	c.JSON(200, utils.SuccessResponse("Data guru berhasil dimuat", data))
 }
@@ -103,14 +90,7 @@ func (h *TeacherHandler) GetAll(c *gin.Context) {
 		TotalData: total,
 		TotalPage: totalPage,
 	}
-	ip := c.ClientIP()
-
-	log := model.ActivityLog{
-		IP:        ip,
-		Aktivitas: "Mengambil list data guru",
-	}
-
-	h.logRepo.Create(log)
+	utils.TambahLog(h.logRepo, c, "Mengambil list data guru")
 
 	c.JSON(200, utils.ListResponse("List guru berhasil dimuat", data, meta))
 }
@@ -140,14 +120,7 @@ func (h *TeacherHandler) Update(c *gin.Context) {
 		c.JSON(400, utils.ErrorResponse("Validation error", validationErr))
 		return
 	}
-	ip := c.ClientIP()
-
-	log := model.ActivityLog{
-		IP:        ip,
-		Aktivitas: "Mengubah data guru",
-	}
-
-	h.logRepo.Create(log)
+	utils.TambahLog(h.logRepo, c, "Mengubah data guru")
 
 	c.JSON(200, utils.SuccessResponse("Data guru berhasil di update", teacher))
 }
@@ -164,14 +137,7 @@ func (h *TeacherHandler) Delete(c *gin.Context) {
 		c.JSON(404, utils.ErrorResponse("Data guru tidak ditemukan", err.Error()))
 		return
 	}
-	ip := c.ClientIP()
-
-	log := model.ActivityLog{
-		IP:        ip,
-		Aktivitas: "Menghapus data guru",
-	}
-
-	h.logRepo.Create(log)
+	utils.TambahLog(h.logRepo, c, "Menghapus data guru")
 
 	c.JSON(200, utils.SuccessResponse("Data guru berhasil dihapus", nil))
 }

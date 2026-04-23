@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"golang-relational-db/internal/model"
 	"golang-relational-db/internal/repository"
 	"golang-relational-db/internal/service"
 	"golang-relational-db/internal/utils"
@@ -78,13 +77,7 @@ func (h *ActivityLogHandler) GetAllLog(c *gin.Context) {
 		TotalData: total,
 		TotalPage: totalPage,
 	}
-	ip := c.ClientIP()
-
-	log := model.ActivityLog{
-		IP:        ip,
-		Aktivitas: "Mengambil list data activity log",
-	}
-	h.logRepo.Create(log)
+	utils.TambahLog(h.logRepo, c, "Mengambil list data log")
 
 	c.JSON(http.StatusOK, utils.ListResponse("list activity log berhasil dimuat", data, meta))
 }
@@ -101,13 +94,7 @@ func (h *ActivityLogHandler) GetLogByID(c *gin.Context) {
 		c.JSON(404, utils.ErrorResponse("Data activity log tidak ditemukan", err.Error()))
 		return
 	}
-	ip := c.ClientIP()
-
-	log := model.ActivityLog{
-		IP:        ip,
-		Aktivitas: "Mengambil data activity log",
-	}
-	h.logRepo.Create(log)
+	utils.TambahLog(h.logRepo, c, "Mengambil data log")
 
 	c.JSON(200, utils.SuccessResponse("Data activity log berhasil dimuat", data))
 }

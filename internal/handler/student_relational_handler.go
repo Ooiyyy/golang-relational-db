@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"golang-relational-db/internal/model"
 	"golang-relational-db/internal/repository"
 	"golang-relational-db/internal/service"
 	"golang-relational-db/internal/utils"
@@ -43,13 +42,7 @@ func (h *StudentRelationalHandler) GetAllDetails(c *gin.Context) {
 		TotalData: total,
 		TotalPage: totalPage,
 	}
-	ip := c.ClientIP()
-
-	log := model.ActivityLog{
-		IP:        ip,
-		Aktivitas: "Mengambil list detail data siswa",
-	}
-	h.logRepo.Create(log)
+	utils.TambahLog(h.logRepo, c, "Mengambil list detail data siswa")
 
 	c.JSON(200, utils.ListResponse("List detail siswa berhasil dimuat", data, meta))
 }
@@ -76,13 +69,7 @@ func (h *StudentRelationalHandler) GetStudentsGrade(c *gin.Context) {
 		TotalData: total,
 		TotalPage: totalPage,
 	}
-	ip := c.ClientIP()
-
-	log := model.ActivityLog{
-		IP:        ip,
-		Aktivitas: "Mengambil list nilai siswa",
-	}
-	h.logRepo.Create(log)
+	utils.TambahLog(h.logRepo, c, "Mengambil data siswa")
 
 	c.JSON(200, utils.ListResponse("List nilai siswa berhasil dimuat", data, meta))
 }
@@ -109,13 +96,7 @@ func (h *StudentRelationalHandler) GetStudentsAvg(c *gin.Context) {
 		TotalData: total,
 		TotalPage: totalPage,
 	}
-	ip := c.ClientIP()
-
-	log := model.ActivityLog{
-		IP:        ip,
-		Aktivitas: "Mengambil list rata-rata nilai siswa",
-	}
-	h.logRepo.Create(log)
+	utils.TambahLog(h.logRepo, c, "Mengambil list rata-rata siswa")
 
 	c.JSON(200, utils.ListResponse("List rata-rata siswa berhasil dimuat", data, meta))
 }
