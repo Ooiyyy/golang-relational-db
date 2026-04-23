@@ -5,6 +5,7 @@ import (
 	"golang-relational-db/internal/repository"
 	"golang-relational-db/internal/service"
 	"golang-relational-db/internal/utils"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -60,7 +61,9 @@ func (h *ActivityLogHandler) GetAllLog(c *gin.Context) {
 
 	search := c.Query("search")
 	sortBy := c.DefaultQuery("sort_by", "id")
-	order := c.DefaultQuery("order_by", "asc")
+	order := c.DefaultQuery("order", "asc")
+
+	log.Printf("DEBUG : %s %s", sortBy, order)
 
 	data, total, err := h.service.GetAllLog(page, limit, search, sortBy, order)
 	if err != nil {

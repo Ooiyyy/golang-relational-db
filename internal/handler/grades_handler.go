@@ -83,6 +83,11 @@ func (h *GradesHandler) UpdateGrade(c *gin.Context) {
 		c.JSON(400, utils.ErrorResponse("id tidak valid", err.Error()))
 		return
 	}
+	_, err = h.service.GetGradeByID(id)
+	if err != nil {
+		c.JSON(404, utils.ErrorResponse("not found", err.Error()))
+		return
+	}
 
 	var req dto.UpdateGradesReq
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -99,6 +104,10 @@ func (h *GradesHandler) UpdateGrade(c *gin.Context) {
 
 	err = h.service.UpdateGrade(id, grade)
 	if err != nil {
+		if err.Error() == "siswa tidak ditemukan" || err.Error() == "mapel tidak ditemukan" {
+			c.JSON(http.StatusNotFound, utils.ErrorResponse("not found", err.Error()))
+			return
+		}
 		validationErr := utils.FormatValidationError(err)
 		c.JSON(400, utils.ErrorResponse("Validation error", validationErr))
 		return

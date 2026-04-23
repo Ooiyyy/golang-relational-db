@@ -112,8 +112,9 @@ func (h *ClassHandler) GetClassByID(c *gin.Context) {
 
 func (h *ClassHandler) UpdateClass(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
+	_, err = h.service.GetClassByID(id)
 	if err != nil {
-		c.JSON(400, utils.ErrorResponse("id tidak valid", err.Error()))
+		c.JSON(404, utils.ErrorResponse("not found", err.Error()))
 		return
 	}
 
@@ -131,6 +132,10 @@ func (h *ClassHandler) UpdateClass(c *gin.Context) {
 
 	err = h.service.UpdateClass(id, class)
 	if err != nil {
+		if err.Error() == "guru tidak ditemukan" {
+			c.JSON(http.StatusNotFound, utils.ErrorResponse("not found", err.Error()))
+			return
+		}
 		validationErr := utils.FormatValidationError(err)
 		c.JSON(400, utils.ErrorResponse("Validation error", validationErr))
 		return

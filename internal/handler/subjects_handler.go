@@ -116,6 +116,11 @@ func (h *SubjectsHandler) UpdateSubject(c *gin.Context) {
 		c.JSON(400, utils.ErrorResponse("id tidak valid", err.Error()))
 		return
 	}
+	_, err = h.service.GetSubjectByID(id)
+	if err != nil {
+		c.JSON(404, utils.ErrorResponse("not found", err.Error()))
+		return
+	}
 
 	var req dto.UpdateSubjectsReq
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -131,6 +136,10 @@ func (h *SubjectsHandler) UpdateSubject(c *gin.Context) {
 
 	err = h.service.UpdateSubject(id, subject)
 	if err != nil {
+		if err.Error() == "guru tidak ditemukan" {
+			c.JSON(http.StatusNotFound, utils.ErrorResponse("not found", err.Error()))
+			return
+		}
 		validationErr := utils.FormatValidationError(err)
 		c.JSON(400, utils.ErrorResponse("Validation error", validationErr))
 		return

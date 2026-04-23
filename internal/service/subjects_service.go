@@ -81,6 +81,11 @@ func (s *SubjectsService) UpdateSubject(id int, subject model.Subjects) error {
 		return err // kalau tidak ada → langsung stop
 	}
 
+	_, err = s.teacherRepo.FindTeacherByID(subject.TeacherID)
+	if err != nil {
+		return errors.New("guru tidak ditemukan") // kalau tidak ada → langsung stop
+	}
+
 	return s.repo.UpdateSubject(id, subject)
 }
 

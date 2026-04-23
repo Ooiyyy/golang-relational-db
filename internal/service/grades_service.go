@@ -53,6 +53,15 @@ func (s *GradesService) UpdateGrade(id int, grade model.Grades) error {
 	if err != nil {
 		return err // kalau tidak ada → langsung stop
 	}
+	_, err = s.studentRepo.FindByID(grade.StudentID)
+	if err != nil {
+		return errors.New("siswa tidak ditemukan")
+	}
+
+	_, err = s.subjectsRepo.FindSubjectByID(grade.SubjectID)
+	if err != nil {
+		return errors.New("mapel tidak ditemukan")
+	}
 
 	return s.repo.UpdateGrade(id, grade)
 }

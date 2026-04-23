@@ -36,16 +36,6 @@ func (s *ClassService) GetAllClass(page, limit int, search, sortBy, order string
 		limit = 10
 	}
 
-	// var classIDInt int
-	// var err error
-	// if classID != "" {
-	// 	classIDInt, err = strconv.Atoi(classID)
-	// 	if err != nil {
-	// 		return nil, 0, fmt.Errorf("class_id harus angka")
-	// 	}
-	// 	return nil, classIDInt, err
-	// }
-
 	allowedSort := map[string]bool{
 		"id":   true,
 		"name": true,
@@ -89,6 +79,10 @@ func (s *ClassService) UpdateClass(id int, class model.Classes) error {
 	_, err := s.GetClassByID(id)
 	if err != nil {
 		return err // kalau tidak ada → langsung stop
+	}
+	_, err = s.teacherRepo.FindTeacherByID(class.TeacherID)
+	if err != nil {
+		return errors.New("guru tidak ditemukan") // kalau tidak ada → langsung stop
 	}
 
 	return s.repo.UpdateClass(id, class)

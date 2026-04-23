@@ -6,6 +6,7 @@ import (
 	"golang-relational-db/internal/repository"
 	"golang-relational-db/internal/service"
 	"golang-relational-db/internal/utils"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -95,6 +96,8 @@ func (h *StudentHandler) GetAll(c *gin.Context) {
 	sortBy := c.DefaultQuery("sort_by", "id")
 	order := c.DefaultQuery("order", "asc")
 
+	log.Printf("DEBUG : %s %s", sortBy, order)
+
 	data, total, err := h.service.GetAllStudents(page, limit, search, classID, sortBy, order)
 	if err != nil {
 		c.JSON(500, utils.ErrorResponse("Terjadi kesalahan pada server", err.Error()))
@@ -125,6 +128,11 @@ func (h *StudentHandler) Update(c *gin.Context) {
 		c.JSON(400, utils.ErrorResponse("id tidak valid", err.Error()))
 		return
 	}
+	_, err = h.service.GetStudentByID(id)
+	if err != nil {
+		c.JSON(404, utils.ErrorResponse("not found", err.Error()))
+		return
+	}
 
 	var req dto.UpdateStudentReq
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -141,6 +149,10 @@ func (h *StudentHandler) Update(c *gin.Context) {
 
 	err = h.service.UpdateStudent(id, student)
 	if err != nil {
+		if err.Error() == "kelas tidak ditemukan" {
+			c.JSON(http.StatusNotFound, utils.ErrorResponse("not found", err.Error()))
+			return
+		}
 		validationErr := utils.FormatValidationError(err)
 		c.JSON(400, utils.ErrorResponse("Validation error", validationErr))
 		return

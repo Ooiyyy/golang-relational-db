@@ -100,6 +100,10 @@ func (s *StudentService) UpdateStudent(id int, student model.Students) error {
 	if err != nil {
 		return err // kalau tidak ada → langsung stop
 	}
+	_, err = s.classRepo.FindClassByID(student.ClassID)
+	if err != nil {
+		return err
+	}
 
 	return s.repo.Update(id, student)
 }

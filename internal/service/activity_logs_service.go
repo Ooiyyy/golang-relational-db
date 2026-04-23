@@ -31,8 +31,8 @@ func (s *LogService) GetAllLog(page, limit int, search, sortBy, order string) ([
 	}
 
 	allowedSort := map[string]bool{
-		"id":   true,
-		"name": true,
+		"id":        true,
+		"aktivitas": true,
 	}
 	if !allowedSort[sortBy] {
 		sortBy = "id"
