@@ -47,7 +47,7 @@ func (r *StudentRelationalImpl) StudentsDetail(limit, offset int, search string,
 	}
 	defer rows.Close()
 
-	var detailStudents []model.StudentDetail
+	detailStudents := []model.StudentDetail{}
 
 	for rows.Next() {
 		var student model.StudentDetail
@@ -133,7 +133,7 @@ func (r *StudentRelationalImpl) StudentsGrade(limit, offset int, search string, 
 	}
 	defer rows.Close()
 
-	var studentsGrade []model.GradesDetail
+	studentsGrade := []model.GradesDetail{}
 
 	for rows.Next() {
 		var student model.GradesDetail
@@ -198,7 +198,7 @@ func (r *StudentRelationalImpl) StudentsAvg(limit, offset int, search string, cl
 	}
 	defer rows.Close()
 
-	var studentsAvg []model.StudentsAvg
+	studentsAvg := []model.StudentsAvg{}
 
 	for rows.Next() {
 		var student model.StudentsAvg

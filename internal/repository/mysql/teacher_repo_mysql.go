@@ -86,7 +86,7 @@ func (r *TeacherRepoImpl) FindAllTeachers(limit, offset int, search string, sort
 	}
 	defer rows.Close()
 
-	var teachers []model.Teachers
+	teachers := []model.Teachers{}
 
 	for rows.Next() {
 		var teacher model.Teachers

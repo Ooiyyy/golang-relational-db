@@ -55,7 +55,7 @@ func (r *ClassRepoImpl) FindAllClasses(limit, offset int, search string, sortBy,
 	}
 	defer rows.Close()
 
-	var classes []model.DetailClass
+	classes := []model.DetailClass{}
 
 	for rows.Next() {
 		var class model.DetailClass

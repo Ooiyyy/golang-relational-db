@@ -15,6 +15,7 @@ func SetupRouter(authHandler *handler.AuthHandler,
 	subjectsHandler *handler.SubjectsHandler,
 	gradeHandler *handler.GradesHandler,
 	teacherHandler *handler.TeacherHandler,
+	logHandler *handler.ActivityLogHandler,
 	jwtSecret string) *gin.Engine {
 	// gin.Default() menambahkan logger + recovery middleware bawaan.
 	r := gin.Default()
@@ -29,6 +30,7 @@ func SetupRouter(authHandler *handler.AuthHandler,
 	SubjectsRoute(r, subjectsHandler)
 	GradeRoute(r, gradeHandler, studentRelationalHandler)
 	TeacherRoute(r, teacherHandler)
+	LogRoute(r, logHandler)
 
 	// Router ini dipanggil oleh bootstrap untuk menerima request dari client.
 	return r

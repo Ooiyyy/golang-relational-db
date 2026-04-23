@@ -3,6 +3,7 @@ package mysql
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"golang-relational-db/internal/model"
 )
 
@@ -89,7 +90,7 @@ func (r *StudentRepoImpl) FindAll(limit, offset int, search string, classID int,
 	}
 	defer rows.Close()
 
-	var students []model.Students
+	students := []model.Students{}
 
 	for rows.Next() {
 		var student model.Students
@@ -99,8 +100,8 @@ func (r *StudentRepoImpl) FindAll(limit, offset int, search string, classID int,
 		}
 		students = append(students, student)
 	}
-	// fmt.Println("QUERY:", query)
-	// fmt.Println("ARGS:", args)
+	fmt.Println("QUERY:", query)
+	fmt.Println("ARGS:", args)
 	return students, nil
 }
 

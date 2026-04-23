@@ -60,7 +60,7 @@ func (r *SubjectsRepoImpl) FindAllSubjects(limit, offset int, search string, sor
 	}
 	defer rows.Close()
 
-	var subjects []model.Subjects
+	subjects := []model.Subjects{}
 
 	for rows.Next() {
 		var subject model.Subjects
